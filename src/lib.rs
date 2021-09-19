@@ -7,6 +7,7 @@ pub struct Game {
     en_passant_square: (usize, usize),
     halfmove_clock: usize,
     turn: usize,
+    selected_promotion: Piece,
 }
 
 impl Game {
@@ -19,6 +20,7 @@ impl Game {
             en_passant_square: (0, 0),
             halfmove_clock: 0,
             turn: 0,
+            selected_promotion: Piece::Queen(Colour::White),
         };
         game.set_state_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         game
@@ -32,6 +34,7 @@ impl Game {
             en_passant_square: (8, 8),
             halfmove_clock: 0,
             turn: 1,
+            selected_promotion: Piece::Queen(Colour::White),
         }
     }
 
@@ -43,7 +46,7 @@ impl Game {
     /// * `fen` - string in FEN-notation containing the desired state of the chess game.
     fn set_state_from_fen(&mut self, fen: &str) {
         let fen_split = fen.split(" ").map(|_s| _s.to_string()).collect::<Vec<String>>();
-        // assert_eq!(fen_split.len(), 6, "Given invalid string when attempting to set state from FEN notaion.");
+        assert_eq!(fen_split.len(), 6, "Given invalid string when attempting to set state from FEN notaion.");
         self.board = {
             fen_split[0].split("/")
                         .map(|_rank| { 
@@ -108,6 +111,44 @@ enum Piece {
     Knight(Colour),
     Pawn(Colour),
     Empty,
+}
+
+impl Piece {
+    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
+        match self {
+            Piece::Empty => Vec::new(),
+            Piece::Queen(_colour) => {
+                Vec::new()
+            },
+            _ => panic!(),
+        }
+    }
+
+    fn get_rook_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)>{
+        let mut moves = Vec::new();
+        for number in 0..8 {
+            moves.push((pos.0, number));
+            moves.push((number, pos.1));
+        }
+        moves
+    }
+
+    fn get_knight_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)> {
+        let mut moves = Vec::new();
+        if pos.0 > 0 && pos.1 > 1 { moves.push((pos.0 - 1, pos.1 - 2)); }
+        if pos.0 > 0 && pos.1 < 6 { moves.push((pos.0 - 1, pos.1 + 2)); }
+        if pos.0 < 7 && pos.1 > 1 { moves.push((pos.0 + 1, pos.1 - 2)); }
+        if pos.0 < 7 && pos.1 < 6 { moves.push((pos.0 + 1, pos.1 + 2)); }
+        if pos.0 > 1 && pos.1 > 0 { moves.push((pos.0 - 2, pos.1 - 1)); }
+        if pos.0 > 1 && pos.1 < 7 { moves.push((pos.0 - 2, pos.1 + 1)); }
+        if pos.0 < 6 && pos.1 > 0 { moves.push((pos.0 + 2, pos.1 - 1)); }
+        if pos.0 < 6 && pos.1 < 7 { moves.push((pos.0 + 2, pos.1 + 1)); }
+        for mov in &moves {
+            assert!((mov.0 <= 7 && mov.0 >= 0), ("x position of Knight move out of bounds."));
+            assert!((mov.1 <= 7 && mov.1 >= 0), ("y position of Knight move out of bounds."));
+        }
+        moves
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
