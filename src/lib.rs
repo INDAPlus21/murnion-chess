@@ -144,8 +144,8 @@ impl Piece {
         if pos.0 < 6 && pos.1 > 0 { moves.push((pos.0 + 2, pos.1 - 1)); }
         if pos.0 < 6 && pos.1 < 7 { moves.push((pos.0 + 2, pos.1 + 1)); }
         for mov in &moves {
-            assert!((mov.0 <= 7 && mov.0 >= 0), ("x position of Knight move out of bounds."));
-            assert!((mov.1 <= 7 && mov.1 >= 0), ("y position of Knight move out of bounds."));
+            assert!((mov.0 <= 7), ("x position of Knight move out of bounds."));
+            assert!((mov.1 <= 7), ("y position of Knight move out of bounds."));
         }
         moves
     }
