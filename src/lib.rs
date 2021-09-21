@@ -133,6 +133,27 @@ impl Piece {
         moves
     }
 
+    fn get_bishop_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)>{
+        let mut moves = Vec::new();
+        for number in 0..8 {
+            if pos.0 + number == 8 || pos.1 + number == 8 { break; }
+            moves.push((pos.0 + number, pos.1 + number));
+        };
+        for number in 0..8 {
+            if pos.0 + number == 8 || pos.1 - number + 1 == 0 { break; }
+            moves.push((pos.0 + number, pos.1 - number));
+        };
+        for number in 0..8 {
+            if pos.0 - number + 1 == 0 || pos.1 + number == 8 { break; }
+            moves.push((pos.0 - number, pos.1 + number));
+        };
+        for number in 0..8 {
+            if pos.0 - number + 1 == 0 || pos.1 - number + 1 == 0 { break; }
+            moves.push((pos.0 - number, pos.1 - number));
+        };
+        moves
+    }
+
     fn get_knight_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
         if pos.0 > 0 && pos.1 > 1 { moves.push((pos.0 - 1, pos.1 - 2)); }
