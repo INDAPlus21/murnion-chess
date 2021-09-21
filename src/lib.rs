@@ -170,6 +170,50 @@ impl Piece {
         }
         moves
     }
+
+    fn get_pawn_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)> {
+        match self.get_colour().unwrap() {
+            Colour::Black => {
+                let mut moves = Vec::new();
+                if pos.0 < 7 {
+                    if pos.1 < 7 {
+                        moves.push((pos.0 + 1, pos.1 + 1));
+                    }
+                    if pos.1 > 0 {
+                        moves.push((pos.0 + 1, pos.1 - 1));
+                    }
+                    moves.push((pos.0 + 1, pos.1));
+                }
+                if pos.0 == 1 {
+                    moves.push((pos.0 + 2, pos.1));
+                }
+                moves
+            },
+            Colour::White => {
+                let mut moves = Vec::new();
+                if pos.0 > 1 {
+                    if pos.1 < 7 {
+                        moves.push((pos.0 + 1, pos.1 + 1));
+                    }
+                    if pos.1 > 0 {
+                        moves.push((pos.0 + 1, pos.1 - 1));
+                    }
+                    moves.push((pos.0 + 1, pos.1));
+                }
+                if pos.0 == 6 {
+                    moves.push((pos.0 - 2, pos.1));
+                }
+                moves
+            }
+        }
+    }
+
+    fn get_colour(&self) -> Option<&Colour> {
+        match self {
+            Piece::King(c) | Piece::Queen(c) | Piece::Rook(c) | Piece::Knight(c) | Piece::Bishop(c) | Piece::Pawn(c) => Some(c),
+            Piece::Empty => None,
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
