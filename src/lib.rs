@@ -129,58 +129,54 @@ impl Piece {
     fn get_rook_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)>{
         let mut moves = Vec::new();
         for number in 1..8 {
-            if pos.1 + number < 8 {
-                if board[pos.0, pos.1 + number] == Piece::Empty {
+            if pos.1 + number >= 8 { break; }
+            if board[pos.0, pos.1 + number] == Piece::Empty {
+                moves.push((pos.0, pos.1 + number));
+            } else {
+                if board[pos.0, pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
                     moves.push((pos.0, pos.1 + number));
-                } else {
-                    if board[pos.0, pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
-                        break;
-                    } else {
-                        moves.push((pos.0, pos.1 + number));
-                        break;
-                    }
+                    break;
                 }
             }
         }
         for number in 1..8 {
-            if pos.0 + number < 8 {
-                if board[pos.0 + number, pos.1] == Piece::Empty {
+            if pos.0 + number > 8 { break; }
+            if board[pos.0 + number, pos.1] == Piece::Empty {
+                moves.push((pos.0 + number, pos.1));
+            } else {
+                if board[pos.0 + number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
                     moves.push((pos.0 + number, pos.1));
-                } else {
-                    if board[pos.0 + number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
-                        break;
-                    } else {
-                        moves.push((pos.0 + number, pos.1));
-                        break;
-                    }
+                    break;
                 }
             }
         }
         for number in 1..8 {
-            if pos.1 - number + 8 > 8 {
-                if board[pos.0, pos.1 - number] == Piece::Empty {
+            if pos.1 - number + 1 < 1 { break; }
+            if board[pos.0, pos.1 - number] == Piece::Empty {
+                moves.push((pos.0, pos.1 - number));
+            } else {
+                if board[pos.0, pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
                     moves.push((pos.0, pos.1 - number));
-                } else {
-                    if board[pos.0, pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
-                        break;
-                    } else {
-                        moves.push((pos.0, pos.1 - number));
-                        break;
-                    }
+                    break;
                 }
             }
         }
         for number in 1..8 {
-            if pos.0 - number + 8 > 8 {
-                if board[pos.0 - number, pos.1] == Piece::Empty {
-                    moves.push((pos.0 - number, pos.1));
+            if pos.0 - number + 1 < 1 { break; }
+            if board[pos.0 - number, pos.1] == Piece::Empty {
+                moves.push((pos.0 - number, pos.1));
+            } else {
+                if board[pos.0 - number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
                 } else {
-                    if board[pos.0 - number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
-                        break;
-                    } else {
-                        moves.push((pos.0 - number, pos.1));
-                        break;
-                    }
+                    moves.push((pos.0 - number, pos.1));
+                    break;
                 }
             }
         }
