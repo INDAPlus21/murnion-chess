@@ -130,10 +130,10 @@ impl Piece {
         let mut moves = Vec::new();
         for number in 1..8 {
             if pos.1 + number >= 8 { break; }
-            if board[pos.0, pos.1 + number] == Piece::Empty {
+            if board[pos.0][ pos.1 + number] == Piece::Empty {
                 moves.push((pos.0, pos.1 + number));
             } else {
-                if board[pos.0, pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0][pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0, pos.1 + number));
@@ -143,10 +143,10 @@ impl Piece {
         }
         for number in 1..8 {
             if pos.0 + number > 8 { break; }
-            if board[pos.0 + number, pos.1] == Piece::Empty {
+            if board[pos.0 + number][pos.1] == Piece::Empty {
                 moves.push((pos.0 + number, pos.1));
             } else {
-                if board[pos.0 + number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0 + number][pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0 + number, pos.1));
@@ -156,10 +156,10 @@ impl Piece {
         }
         for number in 1..8 {
             if pos.1 - number + 1 == 0 { break; }
-            if board[pos.0, pos.1 - number] == Piece::Empty {
+            if board[pos.0][pos.1 - number] == Piece::Empty {
                 moves.push((pos.0, pos.1 - number));
             } else {
-                if board[pos.0, pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0][pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0, pos.1 - number));
@@ -169,10 +169,10 @@ impl Piece {
         }
         for number in 1..8 {
             if pos.0 - number + 1 == 0 { break; }
-            if board[pos.0 - number, pos.1] == Piece::Empty {
+            if board[pos.0 - number][pos.1] == Piece::Empty {
                 moves.push((pos.0 - number, pos.1));
             } else {
-                if board[pos.0 - number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0 - number][pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0 - number, pos.1));
@@ -187,10 +187,10 @@ impl Piece {
         let mut moves = Vec::new();
         for number in 0..8 {
             if pos.0 + number == 8 || pos.1 + number == 8 { break; }
-            if board[pos.0 + number, pos.1 + number] == Piece::Empty {
+            if board[pos.0 + number][pos.1 + number] == Piece::Empty {
                 moves.push((pos.0 + number, pos.1 + number));
             } else {
-                if board[pos.0 + number, pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0 + number][pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0 + number, pos.1 + number));
@@ -200,10 +200,10 @@ impl Piece {
         };
         for number in 0..8 {
             if pos.0 + number == 8 || pos.1 - number + 1 == 0 { break; }
-            if board[pos.0 + number, pos.1 - number] == Piece::Empty {
+            if board[pos.0 + number][pos.1 - number] == Piece::Empty {
                 moves.push((pos.0 + number, pos.1 - number));
             } else {
-                if board[pos.0 + number, pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0 + number][pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0 + number, pos.1 - number));
@@ -213,10 +213,10 @@ impl Piece {
         };
         for number in 0..8 {
             if pos.0 - number + 1 == 0 || pos.1 + number == 8 { break; }
-            if board[pos.0 - number, pos.1 + number] == Piece::Empty {
+            if board[pos.0 - number][pos.1 + number] == Piece::Empty {
                 moves.push((pos.0 - number, pos.1 + number));
             } else {
-                if board[pos.0 - number, pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0 - number][pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0 - number, pos.1 + number));
@@ -226,10 +226,10 @@ impl Piece {
         };
         for number in 0..8 {
             if pos.0 - number + 1 == 0 || pos.1 - number + 1 == 0 { break; }
-            if board[pos.0 - number, pos.1 - number] == Piece::Empty {
+            if board[pos.0 - number][pos.1 - number] == Piece::Empty {
                 moves.push((pos.0 - number, pos.1 - number));
             } else {
-                if board[pos.0 - number, pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
+                if board[pos.0 - number][pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
                     break;
                 } else {
                     moves.push((pos.0 - number, pos.1 - number));
@@ -243,118 +243,98 @@ impl Piece {
     fn get_knight_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
         if pos.0 > 0 && pos.1 > 1 { 
-            if board[pos.0 - 1, pos.1 - 2] == Piece::Empty {
+            if board[pos.0 - 1][pos.1 - 2] == Piece::Empty {
                 moves.push((pos.0 - 1, pos.1 - 2)); 
             } else {
-                if board[pos.0 - 1, pos.1 - 2].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 - 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 - 1, pos.1 - 2));
-                    break;
                 }
             }
         }
         if pos.0 > 0 && pos.1 < 6 { 
-            if board[pos.0 - 1, pos.1 + 2] == Piece::Empty {
+            if board[pos.0 - 1][pos.1 + 2] == Piece::Empty {
                 moves.push((pos.0 - 1, pos.1 + 2)); 
             } else {
-                if board[pos.0 - 1, pos.1 + 2].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 - 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 - 1, pos.1 + 2));
-                    break;
                 }
             }
          }
         if pos.0 < 7 && pos.1 > 1 {
-            if board[pos.0 + 1, pos.1 - 2] == Piece::Empty {
+            if board[pos.0 + 1][pos.1 - 2] == Piece::Empty {
                 moves.push((pos.0 + 1, pos.1 - 2)); 
             } else {
-                if board[pos.0 + 1, pos.1 - 2].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 + 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 + 1, pos.1 - 2));
-                    break;
                 }
             }
         }
         if pos.0 < 7 && pos.1 < 6 {
-            if board[pos.0 + 1, pos.1 + 2] == Piece::Empty {
+            if board[pos.0 + 1][pos.1 + 2] == Piece::Empty {
                 moves.push((pos.0 + 1, pos.1 + 2)); 
             } else {
-                if board[pos.0 + 1, pos.1 + 2].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 + 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 + 1, pos.1 + 2));
-                    break;
                 }
             }
         }
         if pos.0 > 1 && pos.1 > 0 {
-            if board[pos.0 - 2, pos.1 - 1] == Piece::Empty {
+            if board[pos.0 - 2][pos.1 - 1] == Piece::Empty {
                 moves.push((pos.0 - 2, pos.1 - 1)); 
             } else {
-                if board[pos.0 - 2, pos.1 - 1].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 - 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 - 2, pos.1 - 1));
-                    break;
                 }
             }
         }
         if pos.0 > 1 && pos.1 < 7 {
-            if board[pos.0 - 2, pos.1 + 1] == Piece::Empty {
+            if board[pos.0 - 2][pos.1 + 1] == Piece::Empty {
                 moves.push((pos.0 - 2, pos.1 + 1)); 
             } else {
-                if board[pos.0 - 2, pos.1 + 1].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 - 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 - 2, pos.1 + 1));
-                    break;
                 }
             }
         }
         if pos.0 < 6 && pos.1 > 0 {
-            if board[pos.0 + 2, pos.1 - 1] == Piece::Empty {
+            if board[pos.0 + 2][pos.1 - 1] == Piece::Empty {
                 moves.push((pos.0 + 2, pos.1 - 1)); 
             } else {
-                if board[pos.0 + 2, pos.1 - 1].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 + 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 + 2, pos.1 - 1));
-                    break;
                 }
             }
         }
         if pos.0 < 6 && pos.1 < 7 {
-            if board[pos.0 + 2, pos.1 + 1] == Piece::Empty {
+            if board[pos.0 + 2][pos.1 + 1] == Piece::Empty {
                 moves.push((pos.0 + 2, pos.1 + 1)); 
             } else {
-                if board[pos.0 + 2, pos.1 + 1].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
+                if board[pos.0 + 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
                     moves.push((pos.0 + 2, pos.1 + 1));
-                    break;
                 }
             }
         }
         moves
     }
 
-    fn get_pawn_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
+    fn get_pawn_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
         match self.get_colour().unwrap() {
             Colour::Black => {
                 let mut moves = Vec::new();
                 if pos.0 < 7 {
-                    if pos.1 < 7 {
+                    if pos.1 < 7 && ((board[pos.0 + 1][pos.1 + 1] != Piece::Empty && board[pos.0 + 1][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap())
+                        || (en_passant_square == (pos.0 + 1, pos.1 + 1))) {
                         moves.push((pos.0 + 1, pos.1 + 1));
                     }
-                    if pos.1 > 0 {
+                    if pos.1 > 0 && ((board[pos.0 + 1][pos.1 - 1] != Piece::Empty && board[pos.0 + 1][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap())
+                        || (en_passant_square == (pos.0 + 1, pos.1 - 1))) {
                         moves.push((pos.0 + 1, pos.1 - 1));
                     }
-                    moves.push((pos.0 + 1, pos.1));
+                    if board[pos.0 + 1][pos.1] == Piece::Empty {
+                        moves.push((pos.0 + 1, pos.1));
+                    }
                 }
-                if pos.0 == 1 {
+                if pos.0 == 1 && board[pos.0 + 1][pos.1] == Piece::Empty && board[pos.0 + 2][pos.1] == Piece::Empty {
                     moves.push((pos.0 + 2, pos.1));
                 }
                 moves
@@ -362,15 +342,19 @@ impl Piece {
             Colour::White => {
                 let mut moves = Vec::new();
                 if pos.0 > 1 {
-                    if pos.1 < 7 {
-                        moves.push((pos.0 + 1, pos.1 + 1));
+                    if pos.1 < 7 && ((board[pos.0 - 1][pos.1 + 1] != Piece::Empty && board[pos.0 - 1][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap())
+                        || (en_passant_square == (pos.0 - 1, pos.1 + 1))) {
+                        moves.push((pos.0 - 1, pos.1 + 1));
                     }
-                    if pos.1 > 0 {
-                        moves.push((pos.0 + 1, pos.1 - 1));
+                    if pos.1 > 0 && ((board[pos.0 - 1][pos.1 - 1] != Piece::Empty && board[pos.0 - 1][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap())
+                        || (en_passant_square == (pos.0 - 1, pos.1 - 1))) {
+                        moves.push((pos.0 - 1, pos.1 - 1));
                     }
-                    moves.push((pos.0 + 1, pos.1));
+                    if board[pos.0 - 1][pos.1] == Piece::Empty {
+                        moves.push((pos.0 - 1, pos.1));
+                    }
                 }
-                if pos.0 == 6 {
+                if pos.0 == 6 && board[pos.0 - 1][pos.1] == Piece::Empty && board[pos.0 - 2][pos.1] == Piece::Empty {
                     moves.push((pos.0 - 2, pos.1));
                 }
                 moves
