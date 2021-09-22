@@ -104,6 +104,7 @@ impl Game {
     }
 }
 
+/// Enumerable that holds the state of a single piece on the board, with awareness of how it moves and captures.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Piece {
     King(Colour),
@@ -116,6 +117,7 @@ enum Piece {
 }
 
 impl Piece {
+    /// The public function to return any valid moves for the single piece it is called from. Does not check for check.
     fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
         match self {
             Piece::Empty => Vec::new(),
@@ -141,6 +143,14 @@ impl Piece {
         }
     }
 
+    /// Internal helper function which shouldn't be used outside of Piece implementation.
+    /// Retrieves valid moves as if the piece is a rook.
+    /// Moves are returned as a non-sorted list of usize tuples.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `pos`: The position of the piece that moves are gotten from. In usize tuple format.
+    /// * `board`: The board. A 2d vector of Pieces.
     fn get_rook_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)>{
         let mut moves = Vec::new();
         for number in 1..8 {
@@ -198,6 +208,14 @@ impl Piece {
         moves
     }
 
+    /// Internal helper function which shouldn't be used outside of Piece implementation.
+    /// Retrieves valid moves as if the piece is a bishop.
+    /// Moves are returned as a non-sorted list of usize tuples.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `pos`: The position of the piece that moves are gotten from. In usize tuple format.
+    /// * `board`: The board. A 2d vector of Pieces.
     fn get_bishop_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)>{
         let mut moves = Vec::new();
         for number in 0..8 {
@@ -255,6 +273,14 @@ impl Piece {
         moves
     }
 
+    /// Internal helper function which shouldn't be used outside of Piece implementation.
+    /// Retrieves valid moves as if the piece is a knight.
+    /// Moves are returned as a non-sorted list of usize tuples.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `pos`: The position of the piece that moves are gotten from. In usize tuple format.
+    /// * `board`: The board. A 2d vector of Pieces.
     fn get_knight_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
         if pos.0 > 0 && pos.1 > 1 { 
@@ -332,6 +358,15 @@ impl Piece {
         moves
     }
 
+    /// Internal helper function which shouldn't be used outside of Piece implementation.
+    /// Retrieves valid moves as if the piece is a pawn.
+    /// Moves are returned as a non-sorted list of usize tuples.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `pos`: The position of the piece that moves are gotten from. In usize tuple format.
+    /// * `board`: The board. A 2d vector of Pieces.
+    /// * `en_passant_square`: The current square that can be captured through en_passant_square. Any non-existent square is accepted en-passant being impossible.
     fn get_pawn_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
         match self.get_colour().unwrap() {
             Colour::Black => {
@@ -377,6 +412,8 @@ impl Piece {
         }
     }
 
+    /// Helper function to retrieve the colour out of a piece.
+    /// Returns the relevant colour for any piece, and returns None for an empty piece.
     fn get_colour(&self) -> Option<&Colour> {
         match self {
             Piece::King(c) | Piece::Queen(c) | Piece::Rook(c) | Piece::Knight(c) | Piece::Bishop(c) | Piece::Pawn(c) => Some(c),
