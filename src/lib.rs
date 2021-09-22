@@ -242,17 +242,101 @@ impl Piece {
 
     fn get_knight_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
-        if pos.0 > 0 && pos.1 > 1 { moves.push((pos.0 - 1, pos.1 - 2)); }
-        if pos.0 > 0 && pos.1 < 6 { moves.push((pos.0 - 1, pos.1 + 2)); }
-        if pos.0 < 7 && pos.1 > 1 { moves.push((pos.0 + 1, pos.1 - 2)); }
-        if pos.0 < 7 && pos.1 < 6 { moves.push((pos.0 + 1, pos.1 + 2)); }
-        if pos.0 > 1 && pos.1 > 0 { moves.push((pos.0 - 2, pos.1 - 1)); }
-        if pos.0 > 1 && pos.1 < 7 { moves.push((pos.0 - 2, pos.1 + 1)); }
-        if pos.0 < 6 && pos.1 > 0 { moves.push((pos.0 + 2, pos.1 - 1)); }
-        if pos.0 < 6 && pos.1 < 7 { moves.push((pos.0 + 2, pos.1 + 1)); }
-        for mov in &moves {
-            assert!((mov.0 <= 7), ("x position of Knight move out of bounds."));
-            assert!((mov.1 <= 7), ("y position of Knight move out of bounds."));
+        if pos.0 > 0 && pos.1 > 1 { 
+            if board[pos.0 - 1, pos.1 - 2] == Piece::Empty {
+                moves.push((pos.0 - 1, pos.1 - 2)); 
+            } else {
+                if board[pos.0 - 1, pos.1 - 2].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 - 1, pos.1 - 2));
+                    break;
+                }
+            }
+        }
+        if pos.0 > 0 && pos.1 < 6 { 
+            if board[pos.0 - 1, pos.1 + 2] == Piece::Empty {
+                moves.push((pos.0 - 1, pos.1 + 2)); 
+            } else {
+                if board[pos.0 - 1, pos.1 + 2].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 - 1, pos.1 + 2));
+                    break;
+                }
+            }
+         }
+        if pos.0 < 7 && pos.1 > 1 {
+            if board[pos.0 + 1, pos.1 - 2] == Piece::Empty {
+                moves.push((pos.0 + 1, pos.1 - 2)); 
+            } else {
+                if board[pos.0 + 1, pos.1 - 2].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 + 1, pos.1 - 2));
+                    break;
+                }
+            }
+        }
+        if pos.0 < 7 && pos.1 < 6 {
+            if board[pos.0 + 1, pos.1 + 2] == Piece::Empty {
+                moves.push((pos.0 + 1, pos.1 + 2)); 
+            } else {
+                if board[pos.0 + 1, pos.1 + 2].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 + 1, pos.1 + 2));
+                    break;
+                }
+            }
+        }
+        if pos.0 > 1 && pos.1 > 0 {
+            if board[pos.0 - 2, pos.1 - 1] == Piece::Empty {
+                moves.push((pos.0 - 2, pos.1 - 1)); 
+            } else {
+                if board[pos.0 - 2, pos.1 - 1].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 - 2, pos.1 - 1));
+                    break;
+                }
+            }
+        }
+        if pos.0 > 1 && pos.1 < 7 {
+            if board[pos.0 - 2, pos.1 + 1] == Piece::Empty {
+                moves.push((pos.0 - 2, pos.1 + 1)); 
+            } else {
+                if board[pos.0 - 2, pos.1 + 1].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 - 2, pos.1 + 1));
+                    break;
+                }
+            }
+        }
+        if pos.0 < 6 && pos.1 > 0 {
+            if board[pos.0 + 2, pos.1 - 1] == Piece::Empty {
+                moves.push((pos.0 + 2, pos.1 - 1)); 
+            } else {
+                if board[pos.0 + 2, pos.1 - 1].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 + 2, pos.1 - 1));
+                    break;
+                }
+            }
+        }
+        if pos.0 < 6 && pos.1 < 7 {
+            if board[pos.0 + 2, pos.1 + 1] == Piece::Empty {
+                moves.push((pos.0 + 2, pos.1 + 1)); 
+            } else {
+                if board[pos.0 + 2, pos.1 + 1].get_colour().unwrap() == self.get_colour().unwrap() {
+                    break;
+                } else {
+                    moves.push((pos.0 + 2, pos.1 + 1));
+                    break;
+                }
+            }
         }
         moves
     }
