@@ -1,3 +1,5 @@
+mod tests;
+
 /// A struct implementing the full state of the chess board.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Game {
@@ -44,7 +46,7 @@ impl Game {
     /// # Arguments
     /// 
     /// * `fen` - string in FEN-notation containing the desired state of the chess game.
-    fn set_state_from_fen(&mut self, fen: &str) {
+    pub fn set_state_from_fen(&mut self, fen: &str) {
         let fen_split = fen.split(" ").map(|_s| _s.to_string()).collect::<Vec<String>>();
         assert_eq!(fen_split.len(), 6, "Given invalid string when attempting to set state from FEN notaion.");
         self.board = {
@@ -82,14 +84,14 @@ impl Game {
                 square
             } else {
             let x: usize = match fen_chars[0] {
-                'a' => 7,
-                'b' => 6,
-                'c' => 5,
-                'd' => 4,
-                'e' => 3,
-                'f' => 2,
-                'g' => 1,
-                'h' => 0,
+                'a' => 0,
+                'b' => 1,
+                'c' => 2,
+                'd' => 3,
+                'e' => 4,
+                'f' => 5,
+                'g' => 6,
+                'h' => 7,
                 _ => panic!(),
             };
             let y: usize = fen_chars[1].to_digit(10).unwrap() as usize;
@@ -124,16 +126,68 @@ impl Piece {
         }
     }
 
-    fn get_rook_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)>{
+    fn get_rook_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)>{
         let mut moves = Vec::new();
-        for number in 0..8 {
-            moves.push((pos.0, number));
-            moves.push((number, pos.1));
+        for number in 1..8 {
+            if pos.1 + number < 8 {
+                if board[pos.0, pos.1 + number] == Piece::Empty {
+                    moves.push((pos.0, pos.1 + number));
+                } else {
+                    if board[pos.0, pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
+                        break;
+                    } else {
+                        moves.push((pos.0, pos.1 + number));
+                        break;
+                    }
+                }
+            }
+        }
+        for number in 1..8 {
+            if pos.0 + number < 8 {
+                if board[pos.0 + number, pos.1] == Piece::Empty {
+                    moves.push((pos.0 + number, pos.1));
+                } else {
+                    if board[pos.0 + number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
+                        break;
+                    } else {
+                        moves.push((pos.0 + number, pos.1));
+                        break;
+                    }
+                }
+            }
+        }
+        for number in 1..8 {
+            if pos.1 - number + 8 > 8 {
+                if board[pos.0, pos.1 - number] == Piece::Empty {
+                    moves.push((pos.0, pos.1 - number));
+                } else {
+                    if board[pos.0, pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
+                        break;
+                    } else {
+                        moves.push((pos.0, pos.1 - number));
+                        break;
+                    }
+                }
+            }
+        }
+        for number in 1..8 {
+            if pos.0 - number + 8 > 8 {
+                if board[pos.0 - number, pos.1] == Piece::Empty {
+                    moves.push((pos.0 - number, pos.1));
+                } else {
+                    if board[pos.0 - number, pos.1].get_colour().unwrap() == self.get_colour().unwrap() {
+                        break;
+                    } else {
+                        moves.push((pos.0 - number, pos.1));
+                        break;
+                    }
+                }
+            }
         }
         moves
     }
 
-    fn get_bishop_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)>{
+    fn get_bishop_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)>{
         let mut moves = Vec::new();
         for number in 0..8 {
             if pos.0 + number == 8 || pos.1 + number == 8 { break; }
@@ -154,7 +208,7 @@ impl Piece {
         moves
     }
 
-    fn get_knight_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)> {
+    fn get_knight_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
         if pos.0 > 0 && pos.1 > 1 { moves.push((pos.0 - 1, pos.1 - 2)); }
         if pos.0 > 0 && pos.1 < 6 { moves.push((pos.0 - 1, pos.1 + 2)); }
@@ -171,7 +225,7 @@ impl Piece {
         moves
     }
 
-    fn get_pawn_moves(&self, pos: (usize, usize)) -> Vec<(usize, usize)> {
+    fn get_pawn_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         match self.get_colour().unwrap() {
             Colour::Black => {
                 let mut moves = Vec::new();
@@ -222,29 +276,3 @@ enum Colour {
     Black
 }
 
-#[cfg(test)]
-mod game_tests {
-    #[test]
-    fn fen_sets_correctly() {
-        use crate::Piece;
-        use crate::Game;
-        use crate::Colour;
-
-        let fen_game = Game::new();
-        let mut test_game = Game::new_empty();
-        
-        let _board = vec![
-        vec![Piece::Rook(Colour::Black), Piece::Knight(Colour::Black), Piece::Bishop(Colour::Black), Piece::Queen(Colour::Black), Piece::King(Colour::Black), Piece::Bishop(Colour::Black), Piece::Knight(Colour::Black), Piece::Rook(Colour::Black)],
-        vec![Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black)],
-        vec![Piece::Empty; 8],
-        vec![Piece::Empty; 8],
-        vec![Piece::Empty; 8],
-        vec![Piece::Empty; 8],
-        vec![Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White)],
-        vec![Piece::Rook(Colour::White), Piece::Knight(Colour::White), Piece::Bishop(Colour::White), Piece::Queen(Colour::White), Piece::King(Colour::White), Piece::Bishop(Colour::White), Piece::Knight(Colour::White), Piece::Rook(Colour::White)],
-        ];
-        test_game.board = _board;
-
-        assert_eq!(fen_game, test_game);
-    }
-}
