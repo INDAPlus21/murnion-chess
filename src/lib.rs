@@ -116,13 +116,28 @@ enum Piece {
 }
 
 impl Piece {
-    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
+    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
         match self {
             Piece::Empty => Vec::new(),
             Piece::Queen(_colour) => {
-                Vec::new()
+                let mut moves = Vec::new();
+                moves.append(&mut self.get_rook_moves(pos, board));
+                moves.append(&mut self.get_bishop_moves(pos, board));
+                moves
             },
-            _ => panic!(),
+            Piece::Rook(_colour) => {
+                self.get_rook_moves(pos, board)
+            },
+            Piece::Bishop(_colour) => {
+                self.get_bishop_moves(pos, board)
+            },
+            Piece::Knight(_colour) => {
+                self.get_knight_moves(pos, board)
+            },
+            Piece::Pawn(_colour) => {
+                self.get_pawn_moves(pos, board, en_passant_square)
+            },
+            Piece::King(_colour) => panic!(),
         }
     }
 
