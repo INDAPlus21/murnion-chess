@@ -178,16 +178,6 @@ impl Piece {
                 }
                 moves
             },
-            _ => {
-                self.get_valid_moves(pos, board, (8, 8))
-            },
-        }
-    }
-
-    /// The public function to return any valid moves for the single piece it is called from. Does not check for check.
-    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
-        match self {
-            Piece::Empty => Vec::new(),
             Piece::Queen(_colour) => {
                 let mut moves = Vec::new();
                 moves.append(&mut self.get_rook_moves(pos, board));
@@ -203,10 +193,40 @@ impl Piece {
             Piece::Knight(_colour) => {
                 self.get_knight_moves(pos, board)
             },
-            Piece::Pawn(_colour) => {
-                self.get_pawn_moves(pos, board, en_passant_square)
+            _ => Vec::new()
+        }
+    }
+
+    /// The public function to return any valid moves for the single piece it is called from. Does not check for check.
+    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
+        match self {
+            Piece::Empty => Vec::new(),
+            Piece::Queen(_colour) => {
+                let mut moves = Vec::new();
+                moves.append(&mut self.get_rook_moves(pos, board));
+                moves.append(&mut self.get_bishop_moves(pos, board));
+                clean_moves(pos, board, moves)
             },
-            Piece::King(_colour) => panic!(),
+            Piece::Rook(_colour) => {
+                let moves = self.get_rook_moves(pos, board);
+                clean_moves(pos, board, moves)
+            },
+            Piece::Bishop(_colour) => {
+                let moves = self.get_bishop_moves(pos, board);
+                clean_moves(pos, board, moves)
+            },
+            Piece::Knight(_colour) => {
+                let moves = self.get_knight_moves(pos, board);
+                clean_moves(pos, board, moves)
+            },
+            Piece::Pawn(_colour) => {
+                let moves = self.get_pawn_moves(pos, board, en_passant_square);
+                clean_moves(pos, board, moves)
+            },
+            Piece::King(_colour) => {
+                let moves = self.get_king_moves(pos, board);
+                clean_moves(pos, board, moves)
+            },
         }
     }
 
@@ -271,19 +291,6 @@ impl Piece {
                     break;
                 }
             }
-        }
-        let mut bad_moves = Vec::new();
-        for mov_idx in 0..moves.len() {
-            let mut theoretical_game = Game::new();
-            theoretical_game.board = board.clone();
-            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
-            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
-            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
-                bad_moves.push(mov_idx);
-            }
-        }
-        for number in 0..bad_moves.len() {
-            moves.remove(bad_moves[number]);
         }
         moves
     }
@@ -350,23 +357,18 @@ impl Piece {
                 }
             }
         };
-        let mut bad_moves = Vec::new();
-        for mov_idx in 0..moves.len() {
-            let mut theoretical_game = Game::new();
-            theoretical_game.board = board.clone();
-            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
-            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
-            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
-                bad_moves.push(mov_idx);
-            }
-        }
-        for number in 0..bad_moves.len() {
-            moves.remove(bad_moves[number]);
-        }
         moves
     }
 
-    fn get_king_moves(&self, pos: (usize, usize), board: &vec<Vec<Piece>>) -> Vec<(usize, usize)> {
+    /// Internal helper function which shouldn't be used outside of Piece implementation.
+    /// Retrieves valid moves as if the piece is a king.
+    /// Moves are returned as a non-sorted list of usize tuples.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `pos`: The position of the piece that moves are gotten from. In usize tuple format.
+    /// * `board`: The board. A 2d vector of Pieces.
+    fn get_king_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
         for x in 0..3 {
             if pos.0 + x == 0 { continue; }
@@ -374,19 +376,6 @@ impl Piece {
                 if pos.1 + y == 0 { continue; }
                 moves.push((pos.0 + x - 1, pos.1 + y - 1));
             }
-        }
-        let mut bad_moves = Vec::new();
-        for mov_idx in 0..moves.len() {
-            let mut theoretical_game = Game::new();
-            theoretical_game.board = board.clone();
-            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
-            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
-            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
-                bad_moves.push(mov_idx);
-            }
-        }
-        for number in 0..bad_moves.len() {
-            moves.remove(bad_moves[number]);
         }
         moves
     }
@@ -473,19 +462,6 @@ impl Piece {
                 }
             }
         }
-        let mut bad_moves = Vec::new();
-        for mov_idx in 0..moves.len() {
-            let mut theoretical_game = Game::new();
-            theoretical_game.board = board.clone();
-            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
-            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
-            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
-                bad_moves.push(mov_idx);
-            }
-        }
-        for number in 0..bad_moves.len() {
-            moves.remove(bad_moves[number]);
-        }
         moves
     }
 
@@ -518,19 +494,6 @@ impl Piece {
                 if pos.0 == 1 && board[pos.0 + 1][pos.1] == Piece::Empty && board[pos.0 + 2][pos.1] == Piece::Empty {
                     moves.push((pos.0 + 2, pos.1));
                 }
-                let mut bad_moves = Vec::new();
-                for mov_idx in 0..moves.len() {
-                    let mut theoretical_game = Game::new();
-                    theoretical_game.board = board.clone();
-                    theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
-                    theoretical_game.board[pos.0][pos.1] = Piece::Empty;
-                    if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
-                        bad_moves.push(mov_idx);
-                    }
-                }
-                for number in 0..bad_moves.len() {
-                    moves.remove(bad_moves[number]);
-                }
                 moves
             },
             Colour::White => {
@@ -550,19 +513,6 @@ impl Piece {
                 }
                 if pos.0 == 6 && board[pos.0 - 1][pos.1] == Piece::Empty && board[pos.0 - 2][pos.1] == Piece::Empty {
                     moves.push((pos.0 - 2, pos.1));
-                }
-                let mut bad_moves = Vec::new();
-                for mov_idx in 0..moves.len() {
-                    let mut theoretical_game = Game::new();
-                    theoretical_game.board = board.clone();
-                    theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
-                    theoretical_game.board[pos.0][pos.1] = Piece::Empty;
-                    if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
-                        bad_moves.push(mov_idx);
-                    }
-                }
-                for number in 0..bad_moves.len() {
-                    moves.remove(bad_moves[number]);
                 }
                 moves
             }
@@ -585,3 +535,19 @@ enum Colour {
     Black
 }
 
+fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, mut moves: Vec<(usize, usize)>) -> Vec<(usize, usize)> {
+    let mut bad_moves = Vec::new();
+    for mov_idx in 0..moves.len() {
+        let mut theoretical_game = Game::new();
+        theoretical_game.board = board.clone();
+        theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = board[pos.0][pos.1].clone();
+        theoretical_game.board[pos.0][pos.1] = Piece::Empty;
+        if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+            bad_moves.push(mov_idx);
+        }
+    }
+    for number in 0..bad_moves.len() {
+        moves.remove(bad_moves[number]);
+    }
+    moves
+}
