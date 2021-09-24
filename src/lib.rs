@@ -272,6 +272,19 @@ impl Piece {
                 }
             }
         }
+        let mut bad_moves = Vec::new();
+        for mov_idx in 0..moves.len() {
+            let mut theoretical_game = Game::new();
+            theoretical_game.board = board.clone();
+            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
+            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
+            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+                bad_moves.push(mov_idx);
+            }
+        }
+        for number in 0..bad_moves.len() {
+            moves.remove(bad_moves[number]);
+        }
         moves
     }
 
@@ -337,6 +350,19 @@ impl Piece {
                 }
             }
         };
+        let mut bad_moves = Vec::new();
+        for mov_idx in 0..moves.len() {
+            let mut theoretical_game = Game::new();
+            theoretical_game.board = board.clone();
+            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
+            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
+            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+                bad_moves.push(mov_idx);
+            }
+        }
+        for number in 0..bad_moves.len() {
+            moves.remove(bad_moves[number]);
+        }
         moves
     }
 
@@ -422,6 +448,19 @@ impl Piece {
                 }
             }
         }
+        let mut bad_moves = Vec::new();
+        for mov_idx in 0..moves.len() {
+            let mut theoretical_game = Game::new();
+            theoretical_game.board = board.clone();
+            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
+            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
+            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+                bad_moves.push(mov_idx);
+            }
+        }
+        for number in 0..bad_moves.len() {
+            moves.remove(bad_moves[number]);
+        }
         moves
     }
 
@@ -454,6 +493,19 @@ impl Piece {
                 if pos.0 == 1 && board[pos.0 + 1][pos.1] == Piece::Empty && board[pos.0 + 2][pos.1] == Piece::Empty {
                     moves.push((pos.0 + 2, pos.1));
                 }
+                let mut bad_moves = Vec::new();
+                for mov_idx in 0..moves.len() {
+                    let mut theoretical_game = Game::new();
+                    theoretical_game.board = board.clone();
+                    theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
+                    theoretical_game.board[pos.0][pos.1] = Piece::Empty;
+                    if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+                        bad_moves.push(mov_idx);
+                    }
+                }
+                for number in 0..bad_moves.len() {
+                    moves.remove(bad_moves[number]);
+                }
                 moves
             },
             Colour::White => {
@@ -473,6 +525,19 @@ impl Piece {
                 }
                 if pos.0 == 6 && board[pos.0 - 1][pos.1] == Piece::Empty && board[pos.0 - 2][pos.1] == Piece::Empty {
                     moves.push((pos.0 - 2, pos.1));
+                }
+                let mut bad_moves = Vec::new();
+                for mov_idx in 0..moves.len() {
+                    let mut theoretical_game = Game::new();
+                    theoretical_game.board = board.clone();
+                    theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
+                    theoretical_game.board[pos.0][pos.1] = Piece::Empty;
+                    if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+                        bad_moves.push(mov_idx);
+                    }
+                }
+                for number in 0..bad_moves.len() {
+                    moves.remove(bad_moves[number]);
                 }
                 moves
             }
