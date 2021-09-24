@@ -118,6 +118,27 @@ enum Piece {
 }
 
 impl Piece {
+    /// Functions the same as get_valid_moves, but only returns the surrounding squares for Kings.
+    /// Used for making sure there's no endless recursion when checking for checks.
+    fn get_threatened_squares(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
+        match self {
+            Piece::King(_colour) => {
+                let mut moves = Vec::new();
+                for x in 0..3 {
+                    if pos.0 + x == 0 { continue; }
+                    for y in 0..3 {
+                        if pos.1 + y == 0 { continue; }
+                        moves.push((pos.0 + x - 1, pos.1 + y - 1));
+                    }
+                }
+                moves
+            },
+            _ => {
+                self.get_valid_moves(pos, board, (8, 8))
+            },
+        }
+    }
+
     /// The public function to return any valid moves for the single piece it is called from. Does not check for check.
     fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
         match self {

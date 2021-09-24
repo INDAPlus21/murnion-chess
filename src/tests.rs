@@ -143,4 +143,34 @@ mod game_tests {
 
         assert_eq!(get_moves, predicted_moves);
     }
+
+    #[test]
+    fn pawn_moves_correctly() {
+        use crate::Piece;
+        use crate::Game;
+        use crate::Colour;
+
+        let mut game = Game::new();
+        game.set_state_from_fen("8/8/8/8/8/8/2P5/8 w  - 0 0");
+
+        let get_moves = game.board[6][2].get_valid_moves((0, 1), &game.board, game.en_passant_square).sort();
+        let predicted_moves = vec![(5, 2), (4, 2)].sort();
+
+        assert_eq!(get_moves, predicted_moves);
+    }
+
+    #[test]
+    fn pawn_takes_correctly() {
+        use crate::Piece;
+        use crate::Game;
+        use crate::Colour;
+
+        let mut game = Game::new();
+        game.set_state_from_fen("8/8/3p4/1pP5/8/8/8/8 w  b6 0 0");
+
+        let get_moves = game.board[2][3].get_valid_moves((0, 1), &game.board, game.en_passant_square).sort();
+        let predicted_moves = vec![(4, 2), (3, 2), (2, 2)].sort();
+
+        assert_eq!(get_moves, predicted_moves);
+    }
 }
