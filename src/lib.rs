@@ -366,6 +366,31 @@ impl Piece {
         moves
     }
 
+    fn get_king_moves(&self, pos: (usize, usize), board: &vec<Vec<Piece>>) -> Vec<(usize, usize)> {
+        let mut moves = Vec::new();
+        for x in 0..3 {
+            if pos.0 + x == 0 { continue; }
+            for y in 0..3 {
+                if pos.1 + y == 0 { continue; }
+                moves.push((pos.0 + x - 1, pos.1 + y - 1));
+            }
+        }
+        let mut bad_moves = Vec::new();
+        for mov_idx in 0..moves.len() {
+            let mut theoretical_game = Game::new();
+            theoretical_game.board = board.clone();
+            theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = self.clone();
+            theoretical_game.board[pos.0][pos.1] = Piece::Empty;
+            if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+                bad_moves.push(mov_idx);
+            }
+        }
+        for number in 0..bad_moves.len() {
+            moves.remove(bad_moves[number]);
+        }
+        moves
+    }
+
     /// Internal helper function which shouldn't be used outside of Piece implementation.
     /// Retrieves valid moves as if the piece is a knight.
     /// Moves are returned as a non-sorted list of usize tuples.
