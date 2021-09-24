@@ -28,6 +28,7 @@ impl Game {
         game
     }
 
+    /// Creates a new game board, with no pieces on it.
     fn new_empty() -> Game {
         Game {
             board: vec!(vec!(Piece::Empty)),
@@ -167,7 +168,7 @@ impl Piece {
             }
         }
         for number in 1..8 {
-            if pos.0 + number > 8 { break; }
+            if pos.0 + number >= 8 { break; }
             if board[pos.0 + number][pos.1] == Piece::Empty {
                 moves.push((pos.0 + number, pos.1));
             } else {
@@ -180,7 +181,7 @@ impl Piece {
             }
         }
         for number in 1..8 {
-            if pos.1 - number + 1 == 0 { break; }
+            if pos.1 + 1 - number == 0 { break; }
             if board[pos.0][pos.1 - number] == Piece::Empty {
                 moves.push((pos.0, pos.1 - number));
             } else {
@@ -193,7 +194,7 @@ impl Piece {
             }
         }
         for number in 1..8 {
-            if pos.0 - number + 1 == 0 { break; }
+            if pos.0 + 1 - number == 0 { break; }
             if board[pos.0 - number][pos.1] == Piece::Empty {
                 moves.push((pos.0 - number, pos.1));
             } else {
@@ -232,7 +233,7 @@ impl Piece {
             }
         };
         for number in 0..8 {
-            if pos.0 + number == 8 || pos.1 - number + 1 == 0 { break; }
+            if pos.0 + number == 8 || pos.1 + 1 - number == 0 { break; }
             if board[pos.0 + number][pos.1 - number] == Piece::Empty {
                 moves.push((pos.0 + number, pos.1 - number));
             } else {
@@ -245,7 +246,7 @@ impl Piece {
             }
         };
         for number in 0..8 {
-            if pos.0 - number + 1 == 0 || pos.1 + number == 8 { break; }
+            if pos.0 + 1 - number == 0 || pos.1 + number == 8 { break; }
             if board[pos.0 - number][pos.1 + number] == Piece::Empty {
                 moves.push((pos.0 - number, pos.1 + number));
             } else {
@@ -258,7 +259,7 @@ impl Piece {
             }
         };
         for number in 0..8 {
-            if pos.0 - number + 1 == 0 || pos.1 - number + 1 == 0 { break; }
+            if pos.0 + 1 - number == 0 || pos.1 + 1 - number == 0 { break; }
             if board[pos.0 - number][pos.1 - number] == Piece::Empty {
                 moves.push((pos.0 - number, pos.1 - number));
             } else {
