@@ -1,4 +1,13 @@
+use std::collections::HashSet;
 mod tests;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GameState {
+    InProgress,
+    Check,
+    Checkmate,
+    DeadPosition,
+}
 
 /// A struct implementing the full state of the chess board.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -10,6 +19,7 @@ pub struct Game {
     halfmove_clock: usize,
     turn: usize,
     selected_promotion: Piece,
+    game_state: GameState,
 }
 
 impl Game {
@@ -23,6 +33,7 @@ impl Game {
             halfmove_clock: 0,
             turn: 0,
             selected_promotion: Piece::Queen(Colour::White),
+            game_state: GameState::InProgress,
         };
         game.set_state_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         game
@@ -38,6 +49,7 @@ impl Game {
             halfmove_clock: 0,
             turn: 1,
             selected_promotion: Piece::Queen(Colour::White),
+            game_state: GameState::InProgress,
         }
     }
 
@@ -103,6 +115,29 @@ impl Game {
         self.halfmove_clock = fen_split[4].parse::<usize>().unwrap();
         self.turn = fen_split[5].parse::<usize>().unwrap();
     }
+
+    /// Parses the current board to get the game state.
+    fn get_game_state(&self) -> GameState {
+        let threatened_squares: HashSet<(usize, usize)> = HashSet::new();
+        for x in 0..8 {
+            for y in 0..8 {
+                if self.board[x][y] != Piece::Empty && &self.current_turn != self.board[x][y].get_colour().unwrap() {
+                    threatened_squares.union(&self.board[x][y]
+                                        .get_threatened_squares((x, y), &self.board)
+                                        .into_iter()
+                                        .collect::<HashSet<(usize, usize)>>());
+                }
+            }
+        }
+        for x in 0..8 {
+            for y in 0..8 {
+                if self.board[x][y] == Piece::King(self.current_turn) && threatened_squares.contains(&(x, y)) {
+                    return GameState::Check;
+                }
+            }
+        }
+        return GameState::InProgress;
+    }
 }
 
 /// Enumerable that holds the state of a single piece on the board, with awareness of how it moves and captures.
@@ -130,6 +165,16 @@ impl Piece {
                         if pos.1 + y == 0 { continue; }
                         moves.push((pos.0 + x - 1, pos.1 + y - 1));
                     }
+                }
+                moves
+            },
+            Piece::Pawn(_colour) => {
+                let mut moves = Vec::new();
+                if pos.1 != 0 {
+                    moves.push((pos.0 + 1, pos.1 - 1));
+                }
+                if pos.1 != 7 {
+                    moves.push((pos.0 + 1, pos.1 + 1));
                 }
                 moves
             },
