@@ -15,9 +15,11 @@ mod game_tests {
                 let mut game = Game::new_empty();
                 let square = convert_square(stringify!($piece));
                 game.set_state_from_fen($fen);
-                let mut expected_moves = moves!($($token)*);
+                let mut expected_moves: Vec<(usize, usize)> = moves!($($token)*);
                 let mut actual_moves = game.board[square.0][square.1].get_valid_moves(square, &game.board, game.en_passant_square);
-                assert_eq!(expected_moves.sort(), actual_moves.sort());
+                actual_moves.sort();
+                expected_moves.sort();
+                assert_eq!(expected_moves, actual_moves);
             }
         };
     }
@@ -88,42 +90,19 @@ mod game_tests {
         assert_eq!(fen_game, test_game);
     }
 
-    #[test]
-    fn bishop_moves_correctly() {
-        use crate::Piece;
-        use crate::Game;
-        use crate::Colour;
-
-        let mut game = Game::new();
-        game.set_state_from_fen("1B6/8/8/8/8/8/8/8 w  - 0 0");
-
-        let get_moves = game.board[0][1].get_valid_moves((0, 1), &game.board, game.en_passant_square).sort();
-        let predicted_moves = vec![(1, 0), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7)].sort();
-
-        assert_eq!(get_moves, predicted_moves);
-    }
-
     test!{
         name: bishop_takes_correctly,
         fen: "1B6/8/8/8/8/8/8/8 w  - 0 0",
         piece: b8,
-        legal_moves: [a7, b6, c5, d4, e3, f2, g1],
+        legal_moves: [a7, c7, d6, e5, f4, g3, h2],
     }
 
-   // #[test]
-   // fn bishop_takes_correctly() {
-   //     use crate::Piece;
-   //     use crate::Game;
-   //     use crate::Colour;
-   //
-   //     let mut game = Game::new();
-   //     game.set_state_from_fen("1B6/b7/3B4/8/8/8/8/8 w  - 0 0");
-   //
-   //     let get_moves = game.board[0][1].get_valid_moves((0, 1), &game.board, game.en_passant_square).sort();
-   //     let predicted_moves = vec![(1, 0), (1, 2)].sort();
-   //
-   //     assert_eq!(get_moves, predicted_moves);
-   // }
+    test!{
+        name: bishop_moves_correctly,
+        fen: "1B6/8/8/8/8/8/8/8 w  - 0 0",
+        piece: b8,
+        legal_moves: [a7, c7, d6, e5, f4, g3, h2],
+    }
 
     #[test]
     fn rook_moves_correctly() {

@@ -305,58 +305,29 @@ impl Piece {
     /// * `board`: The board. A 2d vector of Pieces.
     fn get_bishop_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)>{
         let mut moves = Vec::new();
-        for number in 0..8 {
-            if pos.0 + number == 8 || pos.1 + number == 8 { break; }
-            if board[pos.0 + number][pos.1 + number] == Piece::Empty {
-                moves.push((pos.0 + number, pos.1 + number));
-            } else {
-                if board[pos.0 + number][pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
-                    moves.push((pos.0 + number, pos.1 + number));
-                    break;
-                }
-            }
-        };
-        for number in 0..8 {
-            if pos.0 + number == 8 || pos.1 + 1 - number == 0 { break; }
-            if board[pos.0 + number][pos.1 - number] == Piece::Empty {
-                moves.push((pos.0 + number, pos.1 - number));
-            } else {
-                if board[pos.0 + number][pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
-                    moves.push((pos.0 + number, pos.1 - number));
-                    break;
-                }
-            }
-        };
-        for number in 0..8 {
-            if pos.0 + 1 - number == 0 || pos.1 + number == 8 { break; }
-            if board[pos.0 - number][pos.1 + number] == Piece::Empty {
-                moves.push((pos.0 - number, pos.1 + number));
-            } else {
-                if board[pos.0 - number][pos.1 + number].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
-                    moves.push((pos.0 - number, pos.1 + number));
-                    break;
-                }
-            }
-        };
-        for number in 0..8 {
-            if pos.0 + 1 - number == 0 || pos.1 + 1 - number == 0 { break; }
-            if board[pos.0 - number][pos.1 - number] == Piece::Empty {
-                moves.push((pos.0 - number, pos.1 - number));
-            } else {
-                if board[pos.0 - number][pos.1 - number].get_colour().unwrap() == self.get_colour().unwrap() {
-                    break;
-                } else {
-                    moves.push((pos.0 - number, pos.1 - number));
-                    break;
-                }
-            }
-        };
+        macro_rules! bishop_move {
+            ($number1:tt, $axis1:tt, $number2:tt, $axis2:tt, $br1:tt, $br2:tt) => {
+                for number in 1..8 {
+                    if pos.0 + $number1 $axis1 number == $br1 || pos.1 + $number2 $axis2 number == $br2 { 
+                        break;
+                    }
+                    if board[pos.0 $axis1 number][pos.1 $axis2 number] == Piece::Empty {
+                        moves.push((pos.0 $axis1 number, pos.1 $axis2 number));
+                    } else {
+                        if board[pos.0 $axis1 number][pos.1 $axis2 number].get_colour().unwrap() == self.get_colour().unwrap() {
+                            break;
+                        } else {
+                            moves.push((pos.0 $axis1 number, pos.1 $axis2 number));
+                            break;
+                        }
+                    }
+                };
+            };
+        }
+        bishop_move!(0, +, 0, +, 8, 8);
+        bishop_move!(0, +, 1, -, 8, 0);
+        bishop_move!(1, -, 0, +, 0, 8);
+        bishop_move!(1, -, 1, -, 0, 0);
         moves
     }
 
@@ -567,5 +538,5 @@ fn convert_square(square: &str) -> (usize, usize) {
         }
     };
     let rank: usize = 8 - square.chars().nth(1).unwrap().to_digit(10).unwrap() as usize;
-    (column, rank)
+    (rank, column)
 }
