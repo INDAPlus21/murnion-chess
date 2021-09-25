@@ -551,3 +551,21 @@ fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, mut moves: Vec<(usi
     }
     moves
 }
+
+fn convert_square(square: &str) -> (usize, usize) {
+    let column = {
+        match square.chars().nth(0).unwrap() {
+            'a' => 0,
+            'b' => 1,
+            'c' => 2,
+            'd' => 3,
+            'e' => 4,
+            'f' => 5,
+            'g' => 6,
+            'h' => 7,
+            _ => panic!(),
+        }
+    };
+    let rank: usize = 8 - square.chars().nth(1).unwrap().to_digit(10).unwrap() as usize;
+    (column, rank)
+}

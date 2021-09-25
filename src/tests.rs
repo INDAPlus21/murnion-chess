@@ -1,5 +1,39 @@
 #[cfg(test)]
 mod game_tests {
+    macro_rules! test {
+        {
+            name: $name:ident,
+            fen: $fen:literal,
+            piece: $piece:ident,
+            legal_moves: [$($token:tt)*],
+        } => {
+            #[test]
+            fn $name() {
+                use crate::Game;
+                use crate::convert_square;
+                
+                let mut game = Game::new_empty();
+                let square = convert_square(stringify!($piece));
+                game.set_state_from_fen($fen);
+                let mut expected_moves = moves!($($token)*);
+                let mut actual_moves = game.board[square.0][square.1].get_valid_moves(square, &game.board, game.en_passant_square);
+                assert_eq!(expected_moves.sort(), actual_moves.sort());
+            }
+        };
+    }
+
+    macro_rules! moves {
+        () => {vec![]};
+        ($mov:ident) => {vec![convert_square(stringify!($mov))]};
+        ($mov:ident, $($movs:tt),*) => { 
+            {
+                let mut all_moves = vec![convert_square(stringify!($mov))];
+                all_moves.append(&mut moves!($($movs),*));
+                all_moves
+            }
+        }
+    }
+
     #[test]
     fn fen_sets_start_correctly() {
         use crate::Piece;
@@ -69,20 +103,27 @@ mod game_tests {
         assert_eq!(get_moves, predicted_moves);
     }
 
-    #[test]
-    fn bishop_takes_correctly() {
-        use crate::Piece;
-        use crate::Game;
-        use crate::Colour;
-
-        let mut game = Game::new();
-        game.set_state_from_fen("1B6/b7/3B4/8/8/8/8/8 w  - 0 0");
-
-        let get_moves = game.board[0][1].get_valid_moves((0, 1), &game.board, game.en_passant_square).sort();
-        let predicted_moves = vec![(1, 0), (1, 2)].sort();
-
-        assert_eq!(get_moves, predicted_moves);
+    test!{
+        name: bishop_takes_correctly,
+        fen: "1B6/8/8/8/8/8/8/8 w  - 0 0",
+        piece: b8,
+        legal_moves: [a7, b6, c5, d4, e3, f2, g1],
     }
+
+   // #[test]
+   // fn bishop_takes_correctly() {
+   //     use crate::Piece;
+   //     use crate::Game;
+   //     use crate::Colour;
+   //
+   //     let mut game = Game::new();
+   //     game.set_state_from_fen("1B6/b7/3B4/8/8/8/8/8 w  - 0 0");
+   //
+   //     let get_moves = game.board[0][1].get_valid_moves((0, 1), &game.board, game.en_passant_square).sort();
+   //     let predicted_moves = vec![(1, 0), (1, 2)].sort();
+   //
+   //     assert_eq!(get_moves, predicted_moves);
+   // }
 
     #[test]
     fn rook_moves_correctly() {
