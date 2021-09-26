@@ -108,7 +108,7 @@ impl Game {
                 _ => panic!(),
             };
             let y: usize = fen_chars[1].to_digit(10).unwrap() as usize;
-            let square = (x, 8 - y);
+            let square = (8 - y, x);
             square
             }
         };
@@ -118,11 +118,11 @@ impl Game {
 
     /// Parses the current board to get the game state.
     fn get_game_state(&self) -> GameState {
-        let threatened_squares: HashSet<(usize, usize)> = HashSet::new();
+        let mut threatened_squares: HashSet<(usize, usize)> = HashSet::new();
         for x in 0..8 {
             for y in 0..8 {
                 if self.board[x][y] != Piece::Empty && &self.current_turn != self.board[x][y].get_colour().unwrap() {
-                    threatened_squares.union(&self.board[x][y]
+                    threatened_squares.extend(&self.board[x][y]
                                         .get_threatened_squares((x, y), &self.board)
                                         .into_iter()
                                         .collect::<HashSet<(usize, usize)>>());
@@ -132,6 +132,7 @@ impl Game {
         for x in 0..8 {
             for y in 0..8 {
                 if self.board[x][y] == Piece::King(self.current_turn) && threatened_squares.contains(&(x, y)) {
+                    println!("{:?}, {:?}", (x, y), threatened_squares);
                     return GameState::Check;
                 }
             }
@@ -345,7 +346,13 @@ impl Piece {
             if pos.0 + x == 0 { continue; }
             for y in 0..3 {
                 if pos.1 + y == 0 { continue; }
-                moves.push((pos.0 + x - 1, pos.1 + y - 1));
+                if board[pos.0 + x - 1][pos.1 + y - 1] == Piece::Empty {
+                    moves.push((pos.0 + x - 1, pos.1 + y - 1));
+                } else {
+                    if board[pos.0 + x - 1][pos.1 + y - 1].get_colour().unwrap() != self.get_colour().unwrap() {
+                        moves.push((pos.0 + x - 1, pos.1 + y - 1));
+                    }
+                }
             }
         }
         moves
@@ -446,6 +453,7 @@ impl Piece {
     /// * `board`: The board. A 2d vector of Pieces.
     /// * `en_passant_square`: The current square that can be captured through en_passant_square. Any non-existent square is accepted en-passant being impossible.
     fn get_pawn_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
+        println!("{:?}", en_passant_square);
         match self.get_colour().unwrap() {
             Colour::Black => {
                 let mut moves = Vec::new();
@@ -506,8 +514,9 @@ enum Colour {
     Black
 }
 
-fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, mut moves: Vec<(usize, usize)>) -> Vec<(usize, usize)> {
+fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, moves: Vec<(usize, usize)>) -> Vec<(usize, usize)> {
     let mut bad_moves = Vec::new();
+    let mut clean_moves = Vec::new();
     for mov_idx in 0..moves.len() {
         let mut theoretical_game = Game::new();
         theoretical_game.board = board.clone();
@@ -517,10 +526,12 @@ fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, mut moves: Vec<(usi
             bad_moves.push(mov_idx);
         }
     }
-    for number in 0..bad_moves.len() {
-        moves.remove(bad_moves[number]);
+    for number in 0..moves.len() {
+        if !bad_moves.contains(&number) {
+            clean_moves.push(moves[number]);
+        }
     }
-    moves
+    clean_moves
 }
 
 fn convert_square(square: &str) -> (usize, usize) {
