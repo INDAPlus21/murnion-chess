@@ -369,8 +369,6 @@ impl Piece {
         let mut moves = Vec::new();
         macro_rules! knight_move {
             ($number1:tt, $axis1:tt, $comp1:tt, $number2:tt, $axis2:tt, $comp2:tt) => {
-                println!("{:?}, {:?}, {:?}", (pos.0 as f32, pos.1 as f32), (3.5 $axis1 3.5 $axis1 -(($number1 - 1) as f32)), (3.5 $axis2 3.5 $axis2 -(($number2 - 1) as f32)));
-                println!("{:?}", (pos.0 as f32) $comp1 (3.5 $axis1 3.5 $axis1 -(($number1 - 1) as f32)) && (pos.1 as f32) $comp2 (3.5 $axis2 3.5 $axis2 -(($number2 - 1) as f32)));
                 if (pos.0 as f32) $comp1 3.5 $axis1 3.5 $axis1 -(($number1 - 1) as f32) && (pos.1 as f32) $comp2 3.5 $axis2 3.5 $axis2 -(($number2 - 1) as f32) {
                     if board[pos.0 $axis1 $number1][pos.1 $axis2 $number2] == Piece::Empty {
                         moves.push((pos.0 $axis1 $number1, pos.1 $axis2 $number2));
