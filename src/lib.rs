@@ -132,7 +132,6 @@ impl Game {
         for x in 0..8 {
             for y in 0..8 {
                 if self.board[x][y] == Piece::King(self.current_turn) && threatened_squares.contains(&(x, y)) {
-                    println!("{:?}, {:?}", (x, y), threatened_squares);
                     return GameState::Check;
                 }
             }
@@ -368,78 +367,101 @@ impl Piece {
     /// * `board`: The board. A 2d vector of Pieces.
     fn get_knight_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
-        if pos.0 > 0 && pos.1 > 1 { 
-            if board[pos.0 - 1][pos.1 - 2] == Piece::Empty {
-                moves.push((pos.0 - 1, pos.1 - 2)); 
-            } else {
-                if board[pos.0 - 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 - 1, pos.1 - 2));
+        macro_rules! knight_move {
+            ($number1:tt, $axis1:tt, $comp1:tt, $number2:tt, $axis2:tt, $comp2:tt) => {
+                println!("{:?}, {:?}, {:?}", (pos.0 as f32, pos.1 as f32), (3.5 $axis1 3.5 $axis1 -(($number1 - 1) as f32)), (3.5 $axis2 3.5 $axis2 -(($number2 - 1) as f32)));
+                println!("{:?}", (pos.0 as f32) $comp1 (3.5 $axis1 3.5 $axis1 -(($number1 - 1) as f32)) && (pos.1 as f32) $comp2 (3.5 $axis2 3.5 $axis2 -(($number2 - 1) as f32)));
+                if (pos.0 as f32) $comp1 3.5 $axis1 3.5 $axis1 -(($number1 - 1) as f32) && (pos.1 as f32) $comp2 3.5 $axis2 3.5 $axis2 -(($number2 - 1) as f32) {
+                    if board[pos.0 $axis1 $number1][pos.1 $axis2 $number2] == Piece::Empty {
+                        moves.push((pos.0 $axis1 $number1, pos.1 $axis2 $number2));
+                    } else {
+                        if board[pos.0 $axis1 $number1][pos.1 $axis2 $number2].get_colour().unwrap() != self.get_colour().unwrap() {
+                            moves.push((pos.0 $axis1 $number1, pos.1 $axis2 $number2));
+                        }
+                    }
                 }
-            }
+            };
         }
-        if pos.0 > 0 && pos.1 < 6 { 
-            if board[pos.0 - 1][pos.1 + 2] == Piece::Empty {
-                moves.push((pos.0 - 1, pos.1 + 2)); 
-            } else {
-                if board[pos.0 - 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 - 1, pos.1 + 2));
-                }
-            }
-         }
-        if pos.0 < 7 && pos.1 > 1 {
-            if board[pos.0 + 1][pos.1 - 2] == Piece::Empty {
-                moves.push((pos.0 + 1, pos.1 - 2)); 
-            } else {
-                if board[pos.0 + 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 + 1, pos.1 - 2));
-                }
-            }
-        }
-        if pos.0 < 7 && pos.1 < 6 {
-            if board[pos.0 + 1][pos.1 + 2] == Piece::Empty {
-                moves.push((pos.0 + 1, pos.1 + 2)); 
-            } else {
-                if board[pos.0 + 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 + 1, pos.1 + 2));
-                }
-            }
-        }
-        if pos.0 > 1 && pos.1 > 0 {
-            if board[pos.0 - 2][pos.1 - 1] == Piece::Empty {
-                moves.push((pos.0 - 2, pos.1 - 1)); 
-            } else {
-                if board[pos.0 - 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 - 2, pos.1 - 1));
-                }
-            }
-        }
-        if pos.0 > 1 && pos.1 < 7 {
-            if board[pos.0 - 2][pos.1 + 1] == Piece::Empty {
-                moves.push((pos.0 - 2, pos.1 + 1)); 
-            } else {
-                if board[pos.0 - 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 - 2, pos.1 + 1));
-                }
-            }
-        }
-        if pos.0 < 6 && pos.1 > 0 {
-            if board[pos.0 + 2][pos.1 - 1] == Piece::Empty {
-                moves.push((pos.0 + 2, pos.1 - 1)); 
-            } else {
-                if board[pos.0 + 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 + 2, pos.1 - 1));
-                }
-            }
-        }
-        if pos.0 < 6 && pos.1 < 7 {
-            if board[pos.0 + 2][pos.1 + 1] == Piece::Empty {
-                moves.push((pos.0 + 2, pos.1 + 1)); 
-            } else {
-                if board[pos.0 + 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
-                    moves.push((pos.0 + 2, pos.1 + 1));
-                }
-            }
-        }
+        knight_move!(1, -, >, 2, -, >);
+        knight_move!(1, -, >, 2, +, <);
+        knight_move!(1, +, <, 2, -, >);
+        knight_move!(1, +, <, 2, +, <);
+        knight_move!(2, -, >, 1, -, >);
+        knight_move!(2, -, >, 1, +, <);
+        knight_move!(2, +, <, 1, -, >);
+        knight_move!(2, +, <, 1, +, <);
+        //if pos.0 > 0 && pos.1 > 1 { 
+        //    if board[pos.0 - 1][pos.1 - 2] == Piece::Empty {
+        //        moves.push((pos.0 - 1, pos.1 - 2)); 
+        //    } else {
+        //        if board[pos.0 - 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 - 1, pos.1 - 2));
+        //        }
+        //    }
+        //}
+        //if pos.0 > 0 && pos.1 < 6 { 
+        //    if board[pos.0 - 1][pos.1 + 2] == Piece::Empty {
+        //        moves.push((pos.0 - 1, pos.1 + 2)); 
+        //    } else {
+        //        if board[pos.0 - 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 - 1, pos.1 + 2));
+        //        }
+        //    }
+        // }
+        //if pos.0 < 7 && pos.1 > 1 {
+        //    if board[pos.0 + 1][pos.1 - 2] == Piece::Empty {
+        //        moves.push((pos.0 + 1, pos.1 - 2)); 
+        //    } else {
+        //        if board[pos.0 + 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 + 1, pos.1 - 2));
+        //        }
+        //    }
+        //}
+        //if pos.0 < 7 && pos.1 < 6 {
+        //    if board[pos.0 + 1][pos.1 + 2] == Piece::Empty {
+        //        moves.push((pos.0 + 1, pos.1 + 2)); 
+        //    } else {
+        //        if board[pos.0 + 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 + 1, pos.1 + 2));
+        //        }
+        //    }
+        //}
+        //if pos.0 > 1 && pos.1 > 0 {
+        //    if board[pos.0 - 2][pos.1 - 1] == Piece::Empty {
+        //        moves.push((pos.0 - 2, pos.1 - 1)); 
+        //    } else {
+        //        if board[pos.0 - 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 - 2, pos.1 - 1));
+        //        }
+        //    }
+        //}
+        //if pos.0 > 1 && pos.1 < 7 {
+        //    if board[pos.0 - 2][pos.1 + 1] == Piece::Empty {
+        //        moves.push((pos.0 - 2, pos.1 + 1)); 
+        //    } else {
+        //        if board[pos.0 - 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 - 2, pos.1 + 1));
+        //        }
+        //    }
+        //}
+        //if pos.0 < 6 && pos.1 > 0 {
+        //    if board[pos.0 + 2][pos.1 - 1] == Piece::Empty {
+        //        moves.push((pos.0 + 2, pos.1 - 1)); 
+        //    } else {
+        //        if board[pos.0 + 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 + 2, pos.1 - 1));
+        //        }
+        //    }
+        //}
+        //if pos.0 < 6 && pos.1 < 7 {
+        //    if board[pos.0 + 2][pos.1 + 1] == Piece::Empty {
+        //        moves.push((pos.0 + 2, pos.1 + 1)); 
+        //    } else {
+        //        if board[pos.0 + 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
+        //            moves.push((pos.0 + 2, pos.1 + 1));
+        //        }
+        //    }
+        //}
         moves
     }
 
