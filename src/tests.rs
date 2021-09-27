@@ -90,6 +90,18 @@ mod game_tests {
         assert_eq!(fen_game, test_game);
     }
 
+    #[test]
+    fn checkmate_correctly_applies() {
+        use crate::Game;
+        use crate::GameState;
+
+        let mut game = Game::new();
+        game.set_state_from_fen("8/8/8/8/8/2b5/1q6/K7 w  - 0 0");
+        let state = game.get_game_state(true);
+
+        assert_eq!(state, GameState::Checkmate);
+    }
+
     test!{
         name: bishop_takes_correctly,
         fen: "1B6/8/8/8/8/8/8/8 w  - 0 0",
@@ -148,9 +160,9 @@ mod game_tests {
 
     test!{
         name: king_moves_correctly,
-        fen: "8/8/8/8/8/K7/8/8 w  - 0 0",
-        piece: a3,
-        legal_moves: [a4, b4, b3, a2, b2],
+        fen: "8/8/8/8/8/8/8/K7 w  - 0 0",
+        piece: a1,
+        legal_moves: [a2, b2, b1],
     }
 
     test!{

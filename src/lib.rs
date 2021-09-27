@@ -6,7 +6,6 @@ enum GameState {
     InProgress,
     Check,
     Checkmate,
-    DeadPosition,
 }
 
 /// A struct implementing the full state of the chess board.
@@ -117,7 +116,7 @@ impl Game {
     }
 
     /// Parses the current board to get the game state.
-    fn get_game_state(&self) -> GameState {
+    fn get_game_state_no_recursion(&self) -> GameState {
         let mut threatened_squares: HashSet<(usize, usize)> = HashSet::new();
         for x in 0..8 {
             for y in 0..8 {
@@ -137,6 +136,24 @@ impl Game {
             }
         }
         return GameState::InProgress;
+    }
+
+    fn get_game_state(&self, eot: bool) -> GameState {
+        let mut state = self.get_game_state_no_recursion();
+        let mut moves = Vec::new();
+        if state == GameState::Check && eot {
+            for x in 0..8 {
+                for y in 0..8 {
+                    if self.board[x][y] != Piece::Empty && self.board[x][y].get_colour().unwrap() == &self.current_turn {
+                        moves.append(&mut self.board[x][y].get_valid_moves((x, y), &self.board, self.en_passant_square));
+                    }
+                }
+            }
+            if moves.len() == 0 {
+                state = GameState::Checkmate;
+            }
+        }
+        state
     }
 }
 
@@ -342,9 +359,9 @@ impl Piece {
     fn get_king_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
         for x in 0..3 {
-            if pos.0 + x == 0 { continue; }
+            if pos.0 + x == 0 || pos.0 + x == 9 { continue; }
             for y in 0..3 {
-                if pos.1 + y == 0 { continue; }
+                if pos.1 + y == 0 || pos.1 + y == 9 { continue; }
                 if board[pos.0 + x - 1][pos.1 + y - 1] == Piece::Empty {
                     moves.push((pos.0 + x - 1, pos.1 + y - 1));
                 } else {
@@ -388,78 +405,6 @@ impl Piece {
         knight_move!(2, -, >, 1, +, <);
         knight_move!(2, +, <, 1, -, >);
         knight_move!(2, +, <, 1, +, <);
-        //if pos.0 > 0 && pos.1 > 1 { 
-        //    if board[pos.0 - 1][pos.1 - 2] == Piece::Empty {
-        //        moves.push((pos.0 - 1, pos.1 - 2)); 
-        //    } else {
-        //        if board[pos.0 - 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 - 1, pos.1 - 2));
-        //        }
-        //    }
-        //}
-        //if pos.0 > 0 && pos.1 < 6 { 
-        //    if board[pos.0 - 1][pos.1 + 2] == Piece::Empty {
-        //        moves.push((pos.0 - 1, pos.1 + 2)); 
-        //    } else {
-        //        if board[pos.0 - 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 - 1, pos.1 + 2));
-        //        }
-        //    }
-        // }
-        //if pos.0 < 7 && pos.1 > 1 {
-        //    if board[pos.0 + 1][pos.1 - 2] == Piece::Empty {
-        //        moves.push((pos.0 + 1, pos.1 - 2)); 
-        //    } else {
-        //        if board[pos.0 + 1][pos.1 - 2].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 + 1, pos.1 - 2));
-        //        }
-        //    }
-        //}
-        //if pos.0 < 7 && pos.1 < 6 {
-        //    if board[pos.0 + 1][pos.1 + 2] == Piece::Empty {
-        //        moves.push((pos.0 + 1, pos.1 + 2)); 
-        //    } else {
-        //        if board[pos.0 + 1][pos.1 + 2].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 + 1, pos.1 + 2));
-        //        }
-        //    }
-        //}
-        //if pos.0 > 1 && pos.1 > 0 {
-        //    if board[pos.0 - 2][pos.1 - 1] == Piece::Empty {
-        //        moves.push((pos.0 - 2, pos.1 - 1)); 
-        //    } else {
-        //        if board[pos.0 - 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 - 2, pos.1 - 1));
-        //        }
-        //    }
-        //}
-        //if pos.0 > 1 && pos.1 < 7 {
-        //    if board[pos.0 - 2][pos.1 + 1] == Piece::Empty {
-        //        moves.push((pos.0 - 2, pos.1 + 1)); 
-        //    } else {
-        //        if board[pos.0 - 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 - 2, pos.1 + 1));
-        //        }
-        //    }
-        //}
-        //if pos.0 < 6 && pos.1 > 0 {
-        //    if board[pos.0 + 2][pos.1 - 1] == Piece::Empty {
-        //        moves.push((pos.0 + 2, pos.1 - 1)); 
-        //    } else {
-        //        if board[pos.0 + 2][pos.1 - 1].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 + 2, pos.1 - 1));
-        //        }
-        //    }
-        //}
-        //if pos.0 < 6 && pos.1 < 7 {
-        //    if board[pos.0 + 2][pos.1 + 1] == Piece::Empty {
-        //        moves.push((pos.0 + 2, pos.1 + 1)); 
-        //    } else {
-        //        if board[pos.0 + 2][pos.1 + 1].get_colour().unwrap() != self.get_colour().unwrap() {
-        //            moves.push((pos.0 + 2, pos.1 + 1));
-        //        }
-        //    }
-        //}
         moves
     }
 
@@ -542,7 +487,7 @@ fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, moves: Vec<(usize, 
         theoretical_game.board = board.clone();
         theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = board[pos.0][pos.1].clone();
         theoretical_game.board[pos.0][pos.1] = Piece::Empty;
-        if theoretical_game.get_game_state() == GameState::Check || theoretical_game.get_game_state() == GameState::Checkmate {
+        if theoretical_game.get_game_state(false) == GameState::Check {
             bad_moves.push(mov_idx);
         }
     }
