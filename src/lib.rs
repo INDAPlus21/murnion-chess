@@ -390,14 +390,14 @@ impl Piece {
                 }
             },
             Colour::Black => {
-                if castlings.0 {
+                if castlings.2 {
                     let sq1 = convert_square("f8");
                     let sq2 = convert_square("g8");
                     if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty {
                         moves.push(convert_square("g8"));
                     }
                 }
-                if castlings.1 {
+                if castlings.3 {
                     let sq1 = convert_square("d8");
                     let sq2 = convert_square("c8");
                     let sq3 = convert_square("b8");

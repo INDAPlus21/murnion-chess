@@ -187,9 +187,16 @@ mod game_tests {
     }
 
     test!{
-        name: king_castle_correctly,
+        name: white_king_castle_correctly,
         fen: "8/8/8/8/8/8/8/3QK2R w KQ - 0 0",
         piece: e1,
         legal_moves: [f1, g1, d2, e2, f2],
+    }
+
+    test!{
+        name: black_king_castle_correctly,
+        fen: "3qk2r/8/8/8/8/8/8/8 w kq - 0 0",
+        piece: e8,
+        legal_moves: [f8, g8, d7, e7, f7],
     }
 }
