@@ -145,7 +145,7 @@ impl Game {
             for x in 0..8 {
                 for y in 0..8 {
                     if self.board[x][y] != Piece::Empty && self.board[x][y].get_colour().unwrap() == &self.current_turn {
-                        moves.append(&mut self.board[x][y].get_valid_moves((x, y), &self.board, self.en_passant_square));
+                        moves.append(&mut self.board[x][y].get_valid_moves((x, y), &self.board, self.en_passant_square, self.castlings));
                     }
                 }
             }
@@ -215,7 +215,7 @@ impl Piece {
     }
 
     /// The public function to return any valid moves for the single piece it is called from. Does not check for check.
-    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
+    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize), castlings: (bool, bool, bool, bool)) -> Vec<(usize, usize)> {
         match self {
             Piece::Empty => Vec::new(),
             Piece::Queen(_colour) => {
@@ -241,7 +241,7 @@ impl Piece {
                 clean_moves(pos, board, moves)
             },
             Piece::King(_colour) => {
-                let moves = self.get_king_moves(pos, board);
+                let moves = self.get_king_moves(pos, board, castlings);
                 clean_moves(pos, board, moves)
             },
         }
@@ -356,7 +356,7 @@ impl Piece {
     /// 
     /// * `pos`: The position of the piece that moves are gotten from. In usize tuple format.
     /// * `board`: The board. A 2d vector of Pieces.
-    fn get_king_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>) -> Vec<(usize, usize)> {
+    fn get_king_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, castlings: (bool, bool, bool, bool)) -> Vec<(usize, usize)> {
         let mut moves = Vec::new();
         for x in 0..3 {
             if pos.0 + x == 0 || pos.0 + x == 9 { continue; }
@@ -367,6 +367,42 @@ impl Piece {
                 } else {
                     if board[pos.0 + x - 1][pos.1 + y - 1].get_colour().unwrap() != self.get_colour().unwrap() {
                         moves.push((pos.0 + x - 1, pos.1 + y - 1));
+                    }
+                }
+            }
+        }
+        match self.get_colour().unwrap() {
+            Colour::White => {
+                if castlings.0 {
+                    let sq1 = convert_square("f1");
+                    let sq2 = convert_square("g1");
+                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty {
+                        moves.push(convert_square("g1"));
+                    }
+                }
+                if castlings.1 {
+                    let sq1 = convert_square("d1");
+                    let sq2 = convert_square("c1");
+                    let sq3 = convert_square("b1");
+                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty && board[sq3.0][sq3.1] == Piece::Empty {
+                        moves.push(convert_square("c1"));
+                    }
+                }
+            },
+            Colour::Black => {
+                if castlings.0 {
+                    let sq1 = convert_square("f8");
+                    let sq2 = convert_square("g8");
+                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty {
+                        moves.push(convert_square("g8"));
+                    }
+                }
+                if castlings.1 {
+                    let sq1 = convert_square("d8");
+                    let sq2 = convert_square("c8");
+                    let sq3 = convert_square("b8");
+                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty && board[sq3.0][sq3.1] == Piece::Empty {
+                        moves.push(convert_square("c8"));
                     }
                 }
             }

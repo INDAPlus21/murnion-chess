@@ -16,7 +16,7 @@ mod game_tests {
                 let square = convert_square(stringify!($piece));
                 game.set_state_from_fen($fen);
                 let mut expected_moves: Vec<(usize, usize)> = moves!($($token)*);
-                let mut actual_moves = game.board[square.0][square.1].get_valid_moves(square, &game.board, game.en_passant_square);
+                let mut actual_moves = game.board[square.0][square.1].get_valid_moves(square, &game.board, game.en_passant_square, game.castlings);
                 actual_moves.sort();
                 expected_moves.sort();
                 assert_eq!(expected_moves, actual_moves);
@@ -184,5 +184,12 @@ mod game_tests {
         fen: "8/8/8/2b5/1P6/K7/8/8 w  - 0 0",
         piece: b4,
         legal_moves: [c5],
+    }
+
+    test!{
+        name: king_castle_correctly,
+        fen: "8/8/8/8/8/8/8/3QK2R w KQ - 0 0",
+        piece: e1,
+        legal_moves: [f1, g1, d2, e2, f2],
     }
 }
