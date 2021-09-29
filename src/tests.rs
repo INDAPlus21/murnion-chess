@@ -199,4 +199,18 @@ mod game_tests {
         piece: e8,
         legal_moves: [f8, g8, d7, e7, f7],
     }
+
+    test!{
+        name: white_king_is_threatened_castle_correctly,
+        fen: "6r1/8/8/8/8/8/8/3QK2R w KQ - 0 0",
+        piece: e1,
+        legal_moves: [f1, d2, e2, f2],
+    }
+
+    test!{
+        name: black_king_is_threatened_castle_correctly,
+        fen: "3qk2r/8/8/8/8/8/8/6R1 w KQkq - 0 0",
+        piece: e8,
+        legal_moves: [f8, d7, e7, f7],
+    }
 }

@@ -373,10 +373,24 @@ impl Piece {
         }
         match self.get_colour().unwrap() {
             Colour::White => {
+                let threatened_squares = {
+                    let mut threat = Vec::new();
+                    for x in 0..8 {
+                        for y in 0..8 {
+                            if board[x][y] != Piece::Empty && board[x][y].get_colour().unwrap() != &Colour::White {
+                                threat.append(&mut board[x][y].get_threatened_squares((x, y), board));
+                            }
+                        }
+                    }
+                    threat
+                };
                 if castlings.0 {
                     let sq1 = convert_square("f1");
                     let sq2 = convert_square("g1");
-                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty {
+                    if board[sq1.0][sq1.1] == Piece::Empty 
+                        && board[sq2.0][sq2.1] == Piece::Empty 
+                        && !threatened_squares.contains(&sq1) 
+                        && !threatened_squares.contains(&sq2) {
                         moves.push(convert_square("g1"));
                     }
                 }
@@ -384,16 +398,35 @@ impl Piece {
                     let sq1 = convert_square("d1");
                     let sq2 = convert_square("c1");
                     let sq3 = convert_square("b1");
-                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty && board[sq3.0][sq3.1] == Piece::Empty {
+                    if board[sq1.0][sq1.1] == Piece::Empty 
+                        && board[sq2.0][sq2.1] == Piece::Empty 
+                        && board[sq3.0][sq3.1] == Piece::Empty
+                        && !threatened_squares.contains(&sq1)
+                        && !threatened_squares.contains(&sq2)
+                        && !threatened_squares.contains(&sq3) {
                         moves.push(convert_square("c1"));
                     }
                 }
             },
             Colour::Black => {
+                let threatened_squares = {
+                    let mut threat = Vec::new();
+                    for x in 0..8 {
+                        for y in 0..8 {
+                            if board[x][y] != Piece::Empty && board[x][y].get_colour().unwrap() != &Colour::Black {
+                                threat.append(&mut board[x][y].get_threatened_squares((x, y), board));
+                            }
+                        }
+                    }
+                    threat
+                };
                 if castlings.2 {
                     let sq1 = convert_square("f8");
                     let sq2 = convert_square("g8");
-                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty {
+                    if board[sq1.0][sq1.1] == Piece::Empty 
+                        && board[sq2.0][sq2.1] == Piece::Empty 
+                        && !threatened_squares.contains(&sq1) 
+                        && !threatened_squares.contains(&sq2) {
                         moves.push(convert_square("g8"));
                     }
                 }
@@ -401,7 +434,12 @@ impl Piece {
                     let sq1 = convert_square("d8");
                     let sq2 = convert_square("c8");
                     let sq3 = convert_square("b8");
-                    if board[sq1.0][sq1.1] == Piece::Empty && board[sq2.0][sq2.1] == Piece::Empty && board[sq3.0][sq3.1] == Piece::Empty {
+                    if board[sq1.0][sq1.1] == Piece::Empty 
+                        && board[sq2.0][sq2.1] == Piece::Empty 
+                        && board[sq3.0][sq3.1] == Piece::Empty
+                        && !threatened_squares.contains(&sq1)
+                        && !threatened_squares.contains(&sq2)
+                        && !threatened_squares.contains(&sq3) {
                         moves.push(convert_square("c8"));
                     }
                 }
