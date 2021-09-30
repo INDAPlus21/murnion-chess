@@ -7,7 +7,7 @@ da chess engine??
 - [X] check for checkmate (haharder)
 - [X] make sure en passant works??
 - [X] make sure castling works too
-- [ ] promotion, on top of that
-- [ ] comprehensive take_turn function that just makes sure it all works
+- [X] promotion, on top of that
+- [X] comprehensive take_turn function that just makes sure it all works
 - [ ] double check the whole interface is implemented
 - [ ] double check the documentation
