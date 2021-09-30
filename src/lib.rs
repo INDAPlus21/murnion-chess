@@ -199,6 +199,102 @@ impl Game {
         }
     }
 
+    /// Returns the state of the game as a string in FEN-notation.
+    pub fn get_fen(&self) -> String {
+        use std::char;
+
+        let mut fen: String = "".to_string();
+        for x in 0..8 {
+            let mut rank: String = "".to_string();
+            let mut empties = 0;
+            for y in 0..8 {
+                match self.board[x][y] {
+                    Piece::Empty => empties = empties + 1,
+                    Piece::King(colour) => {
+                        if empties > 0 {rank.push(char::from_digit(empties, 10).unwrap()); empties = 0; }
+                        if colour == Colour::White {
+                            rank.push('K');
+                        } else {
+                            rank.push('k');
+                        }
+                    },
+                    Piece::Queen(colour) => {
+                        if empties > 0 {rank.push(char::from_digit(empties, 10).unwrap()); empties = 0; }
+                        if colour == Colour::White {
+                            rank.push('Q');
+                        } else {
+                            rank.push('q');
+                        }
+                    },
+                    Piece::Bishop(colour) => {
+                        if empties > 0 {rank.push(char::from_digit(empties, 10).unwrap()); empties = 0; }
+                        if colour == Colour::White {
+                            rank.push('B');
+                        } else {
+                            rank.push('b');
+                        }
+                    },
+                    Piece::Rook(colour) => {
+                        if empties > 0 {rank.push(char::from_digit(empties, 10).unwrap()); empties = 0; }
+                        if colour == Colour::White {
+                            rank.push('R');
+                        } else {
+                            rank.push('r');
+                        }
+                    },
+                    Piece::Knight(colour) => {
+                        if empties > 0 {rank.push(char::from_digit(empties, 10).unwrap()); empties = 0; }
+                        if colour == Colour::White {
+                            rank.push('N');
+                        } else {
+                            rank.push('n');
+                        }
+                    },
+                    Piece::Pawn(colour) => {
+                        if empties > 0 {rank.push(char::from_digit(empties, 10).unwrap()); empties = 0; }
+                        if colour == Colour::White {
+                            rank.push('P');
+                        } else {
+                            rank.push('p');
+                        }
+                    },
+                }
+            }
+            fen.push_str(&rank);
+        }
+
+        if self.current_turn == Colour::White {
+            fen.push_str(" w ");
+        } else {
+            fen.push_str(" b ");
+        }
+
+        if self.castlings.0 {fen.push_str("K")}
+        if self.castlings.1 {fen.push_str("Q")}
+        if self.castlings.2 {fen.push_str("k")}
+        if self.castlings.3 {fen.push_str("q")}
+
+        let x = self.en_passant_square.0;
+        let y = self.en_passant_square.1;
+
+        match y {
+            0 => {fen.push('a')},
+            1 => {fen.push('b')},
+            2 => {fen.push('c')},
+            3 => {fen.push('d')},
+            4 => {fen.push('e')},
+            5 => {fen.push('f')},
+            6 => {fen.push('g')},
+            7 => {fen.push('h')},
+        }
+        fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+        fen.push_str(&" ");
+        fen.push_str(&self.halfmove_clock.to_string());
+        fen.push_str(&" ");
+        fen.push_str(&self.turn.to_string());
+        fen
+    }
+
     /// Takes a string in the form "\<square\> \<square\>", moving from the first square to the second.
     /// Also updates relevant game-tracking variables, such as the halfmove-clock, castlings and the en-passant square.
     pub fn take_turn(&mut self, mov: String) -> GameState {
