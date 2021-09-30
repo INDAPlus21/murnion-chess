@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 mod tests;
 
+/// An enumerable representing whether the game has ended or not.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GameState {
     InProgress,
@@ -23,7 +24,7 @@ pub struct Game {
 
 impl Game {
     /// Creates a new game board, with standard starting positions.
-    fn new() -> Game {
+    pub fn new() -> Game {
         let mut game = Game {
             board: vec!(vec!(Piece::Empty)),
             current_turn: Colour::White,
@@ -36,6 +37,11 @@ impl Game {
         };
         game.set_state_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         game
+    }
+
+    /// Function that returns the current game-state of the board.
+    pub fn game_state(&self) -> GameState {
+        self.game_state
     }
 
     /// Creates a new game board, with no pieces on it.
@@ -58,6 +64,31 @@ impl Game {
     /// # Arguments
     /// 
     /// * `fen` - string in FEN-notation containing the desired state of the chess game.
+    /// 
+    /// ```
+    /// let mut fen_game = Game::new();
+    /// fen_game.set_state_from_fen("rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR b kq e3 20 2");
+    /// let mut test_game = Game::new_empty();
+    /// 
+    /// let _board = vec![
+    /// vec![Piece::Rook(Colour::Black), Piece::Knight(Colour::Black), Piece::Bishop(Colour::Black), Piece::Queen(Colour::Black), Piece::King(Colour::Black), Piece::Bishop(Colour::Black), Piece::Knight(Colour::Black), Piece::Rook(Colour::Black)],
+    /// vec![Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Empty, Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black)],
+    /// vec![Piece::Empty, Piece::Empty, Piece::Pawn(Colour::Black), Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty],
+    /// vec![Piece::Empty; 8],
+    /// vec![Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Pawn(Colour::White), Piece::Empty, Piece::Empty, Piece::Empty],
+    /// vec![Piece::Empty; 8],
+    /// vec![Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Empty, Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White)],
+    /// vec![Piece::Rook(Colour::White), Piece::Knight(Colour::White), Piece::Bishop(Colour::White), Piece::Queen(Colour::White), Piece::King(Colour::White), Piece::Bishop(Colour::White), Piece::Knight(Colour::White), Piece::Rook(Colour::White)],
+    /// ];
+    /// test_game.board = _board;
+    /// test_game.turn = 2;
+    /// test_game.current_turn = Colour::Black;
+    /// test_game.en_passant_square = (5, 4);
+    /// test_game.castlings = (false, false, true, true);
+    /// test_game.halfmove_clock = 20;
+    /// 
+    /// assert_eq!(fen_game, test_game);
+    /// ```
     pub fn set_state_from_fen(&mut self, fen: &str) {
         let fen_split = fen.split(" ").map(|_s| _s.to_string()).collect::<Vec<String>>();
         assert_eq!(fen_split.len(), 6, "Given invalid string when attempting to set state from FEN notaion.");
@@ -115,7 +146,7 @@ impl Game {
         self.turn = fen_split[5].parse::<usize>().unwrap();
     }
 
-    /// Parses the current board to get the game state.
+    /// Parses the current board to get the game-state. Returns the new game-state.
     fn get_game_state_no_recursion(&self) -> GameState {
         let mut threatened_squares: HashSet<(usize, usize)> = HashSet::new();
         for x in 0..8 {
@@ -138,6 +169,7 @@ impl Game {
         return GameState::InProgress;
     }
 
+    /// Recursively parses the board to get the game-state. Returns the new game-state.
     fn get_game_state(&self, eot: bool) -> GameState {
         let mut state = self.get_game_state_no_recursion();
         let mut moves = Vec::new();
@@ -156,6 +188,7 @@ impl Game {
         state
     }
 
+    /// Takes a char of either r, q, n, or b, setting the promotion to be Rook, Queen, Knight or Bishop.
     pub fn select_promotion(&mut self, piece: char) {
         match piece.to_lowercase().next().unwrap() {
             'r' => self.selected_promotion = Piece::Rook(self.current_turn),
@@ -167,6 +200,7 @@ impl Game {
     }
 
     /// Takes a string in the form "<square> <square>", moving from the first square to the second.
+    /// Also updates relevant game-tracking variables, such as the halfmove-clock, castlings and the en-passant square.
     pub fn take_turn(&mut self, mov: String) -> GameState {
         let movs = mov.split(" ").collect::<Vec<&str>>();
         let from = convert_square(movs[0]);
@@ -335,7 +369,7 @@ impl Piece {
         }
     }
 
-    /// The public function to return any valid moves for the single piece it is called from. Does not check for check.
+    /// The public function to return any valid moves for the single piece it is called from. 
     fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize), castlings: (bool, bool, bool, bool)) -> Vec<(usize, usize)> {
         match self {
             Piece::Empty => Vec::new(),
@@ -668,12 +702,20 @@ impl Piece {
     }
 }
 
+/// Colour enumerable used to identify the colour that any given piece belongs to.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Colour {
     White,
     Black
 }
 
+/// Goes through all the moves given in moves, and removes any that would place the player in check.
+/// 
+/// # Arguments
+/// 
+/// `pos`: The position of the piece which is being moved.
+/// `board`: The board of the game.
+/// `moves`: The moves to be cleaned.
 fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, moves: Vec<(usize, usize)>) -> Vec<(usize, usize)> {
     let mut bad_moves = Vec::new();
     let mut clean_moves = Vec::new();
@@ -694,6 +736,18 @@ fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, moves: Vec<(usize, 
     clean_moves
 }
 
+/// Takes a string such as a4 or c6 and converts it into a tuple of x and y friendly to the game board.
+/// 
+/// # Arguments
+/// 
+/// `square`: A string literal with a square in chess notation.
+/// 
+/// ```
+/// let sq1 = (0, 0);
+/// let sq2 = convert_square("a8");
+/// 
+/// assert_eq!(sq1, sq2);
+/// ```
 fn convert_square(square: &str) -> (usize, usize) {
     let column = {
         match square.chars().nth(0).unwrap() {
