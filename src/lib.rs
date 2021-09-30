@@ -199,7 +199,7 @@ impl Game {
         }
     }
 
-    /// Takes a string in the form "<square> <square>", moving from the first square to the second.
+    /// Takes a string in the form "\<square\> \<square\>", moving from the first square to the second.
     /// Also updates relevant game-tracking variables, such as the halfmove-clock, castlings and the en-passant square.
     pub fn take_turn(&mut self, mov: String) -> GameState {
         let movs = mov.split(" ").collect::<Vec<&str>>();
