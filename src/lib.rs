@@ -2,7 +2,7 @@ use std::collections::HashSet;
 mod tests;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum GameState {
+pub enum GameState {
     InProgress,
     Check,
     Checkmate,
@@ -154,6 +154,127 @@ impl Game {
             }
         }
         state
+    }
+
+    pub fn select_promotion(&mut self, piece: char) {
+        match piece.to_lowercase().next().unwrap() {
+            'r' => self.selected_promotion = Piece::Rook(self.current_turn),
+            'b' => self.selected_promotion = Piece::Bishop(self.current_turn),
+            'n' => self.selected_promotion = Piece::Knight(self.current_turn),
+            'q' => self.selected_promotion = Piece::Queen(self.current_turn),
+            _ => panic!()
+        }
+    }
+
+    /// Takes a string in the form "<square> <square>", moving from the first square to the second.
+    pub fn take_turn(&mut self, mov: String) -> GameState {
+        let movs = mov.split(" ").collect::<Vec<&str>>();
+        let from = convert_square(movs[0]);
+        let to = convert_square(movs[1]);
+
+        self.halfmove_clock = self.halfmove_clock + 1;
+
+        let valids = self.board[from.0][from.1].get_valid_moves(from, &self.board, self.en_passant_square, self.castlings);
+
+        if valids.contains(&to) {
+            let cur_piece = self.board[from.0][from.1];
+            match cur_piece {
+                Piece::King(Colour::Black) => {
+                    if to == convert_square("g8") && self.castlings.2 {
+                        self.board[0][7] = Piece::Empty;
+                        self.board[0][5] = Piece::Rook(Colour::Black);
+                    }
+                    if to == convert_square("c8") && self.castlings.3 {
+                        self.board[0][0] = Piece::Empty;
+                        self.board[0][3] = Piece::Rook(Colour::Black);
+                    }
+                    self.castlings.2 = false;
+                    self.castlings.3 = false;
+                },
+                Piece::King(Colour::White) => {
+                    if to == convert_square("g1") && self.castlings.0 {
+                        self.board[7][7] = Piece::Empty;
+                        self.board[7][5] = Piece::Rook(Colour::White);
+                    }
+                    if to == convert_square("c1") && self.castlings.1 {
+                        self.board[7][0] = Piece::Empty;
+                        self.board[7][3] = Piece::Rook(Colour::White);
+                    }
+                    self.castlings.0 = false;
+                    self.castlings.1 = false;
+                },
+                Piece::Pawn(_colour) => {
+                    if to == self.en_passant_square {
+                        match self.en_passant_square.0 {
+                            5 => { 
+                                self.board[self.en_passant_square.0 - 1][self.en_passant_square.1] = Piece::Empty;
+                            }
+                            2 => {
+                                self.board[self.en_passant_square.0 + 1][self.en_passant_square.1] = Piece::Empty;
+                            }
+                            _ => panic!()
+                        }
+                    }
+                    self.halfmove_clock = 0;
+                },
+                _ => (),
+            }
+        }
+        
+        if self.board[from.0][from.1] == Piece::Pawn(Colour::Black) && to.0 == from.0 + 2 {
+            self.en_passant_square = (from.0 + 1, from.1);
+        } else if self.board[from.0][from.1] == Piece::Pawn(Colour::White) && to.0 + 2 == from.0 {
+            self.en_passant_square = (from.0 - 1, from.1);
+        } else {
+            self.en_passant_square = (8, 8);
+        }
+        
+        match from {
+            (0, 0) => self.castlings.3 = false,
+            (0, 7) => self.castlings.2 = false,
+            (7, 0) => self.castlings.1 = false,
+            (7, 7) => self.castlings.0 = false,
+            _ => ()
+        }
+        match to {
+            (0, 0) => self.castlings.3 = false,
+            (0, 7) => self.castlings.2 = false,
+            (7, 0) => self.castlings.1 = false,
+            (7, 7) => self.castlings.0 = false,
+            _ => ()
+        }
+
+        if self.board[to.0][to.1] != Piece::Empty {
+            self.halfmove_clock = 0;
+        }
+
+        self.board[to.0][to.1] = self.board[from.0][from.1];
+        self.board[from.0][from.1] = Piece::Empty;
+
+        if self.board[to.0][to.1] == Piece::Pawn(Colour::White) && to.0 == 0 {
+            self.board[to.0][to.1] = self.selected_promotion;
+        }
+        if self.board[to.0][to.1] == Piece::Pawn(Colour::Black) && to.0 == 7 {
+            self.board[to.0][to.1] = self.selected_promotion;
+        }
+
+        if self.current_turn == Colour::Black {
+            self.turn = self.turn + 1;
+            self.current_turn = Colour::White;
+        } else {
+            self.current_turn = Colour::Black;
+        }
+
+        match self.selected_promotion {
+            Piece::Bishop(_colour) => self.selected_promotion = Piece::Bishop(self.current_turn),
+            Piece::Rook(_colour) => self.selected_promotion = Piece::Rook(self.current_turn),
+            Piece::Knight(_colour) => self.selected_promotion = Piece::Knight(self.current_turn),
+            Piece::Queen(_colour) => self.selected_promotion = Piece::Queen(self.current_turn),
+            _ => panic!()
+        }
+
+        self.game_state = self.get_game_state(true);
+        self.game_state
     }
 }
 

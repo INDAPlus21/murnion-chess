@@ -24,6 +24,29 @@ mod game_tests {
         };
     }
 
+    macro_rules! move_test {
+        {
+            name: $name:ident,
+            fen: $fen:literal,
+            mov: $from:ident $to:ident,
+            expected_fen: $expected_fen:literal,
+        } => {
+            #[test]
+            fn $name() {
+                use crate::Game;
+                use crate::convert_square;
+
+                let mut game = Game::new_empty();
+                game.set_state_from_fen($fen);
+                game.take_turn(stringify!($from $to).to_string());
+                let mut expected_game = Game::new_empty();
+                expected_game.set_state_from_fen($expected_fen);
+
+                assert_eq!(game.board, expected_game.board);
+            }
+        };
+    }
+
     macro_rules! moves {
         () => {vec![]};
         ($mov:ident) => {vec![convert_square(stringify!($mov))]};
@@ -100,6 +123,27 @@ mod game_tests {
         let state = game.get_game_state(true);
 
         assert_eq!(state, GameState::Checkmate);
+    }
+
+    move_test!{
+        name: white_castles,
+        fen: "8/8/8/8/8/8/8/4K2R w KQkq - 0 0",
+        mov: e1 g1,
+        expected_fen: "8/8/8/8/8/8/8/5RK1 w kq - 0 0",
+    }
+
+    move_test!{
+        name: white_en_passant,
+        fen: "8/8/8/1pP5/8/8/8/8 w KQkq b6 0 0",
+        mov: c5 b6,
+        expected_fen: "8/8/1P6/8/8/8/8/8 w KQkq - 0 0",
+    }
+
+    move_test!{
+        name: white_promotion,
+        fen: "8/P7/8/8/8/8/8/8 w KQkq - 0 0",
+        mov: a7 a8,
+        expected_fen: "Q7/8/8/8/8/8/8/8 w KQkq - 0 0",
     }
 
     test!{
