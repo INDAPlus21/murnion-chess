@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-mod tests;
 
 /// An enumerable representing whether the game has ended or not.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -328,7 +327,7 @@ impl Game {
                     self.castlings.0 = false;
                     self.castlings.1 = false;
                 },
-                Piece::Pawn(_colour) => {
+                Piece::Pawn(colour) => {
                     if to == self.en_passant_square {
                         match self.en_passant_square.0 {
                             5 => { 
@@ -345,10 +344,10 @@ impl Game {
                 _ => (),
             }
         }
-        
+
         if self.board[from.0][from.1] == Piece::Pawn(Colour::Black) && to.0 == from.0 + 2 {
             self.en_passant_square = (from.0 + 1, from.1);
-        } else if self.board[from.0][from.1] == Piece::Pawn(Colour::White) && to.0 + 2 == from.0 {
+        } else if self.board[from.0][from.1] == Piece::Pawn(Colour::White) && to.0 == from.0 - 2 {
             self.en_passant_square = (from.0 - 1, from.1);
         } else {
             self.en_passant_square = (8, 8);
@@ -738,7 +737,6 @@ impl Piece {
     /// * `board`: The board. A 2d vector of Pieces.
     /// * `en_passant_square`: The current square that can be captured through en_passant_square. Any non-existent square is accepted en-passant being impossible.
     fn get_pawn_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize)) -> Vec<(usize, usize)> {
-        println!("{:?}", en_passant_square);
         match self.get_colour().unwrap() {
             Colour::Black => {
                 let mut moves = Vec::new();
