@@ -64,31 +64,6 @@ impl Game {
     /// # Arguments
     /// 
     /// * `fen` - string in FEN-notation containing the desired state of the chess game.
-    /// 
-    /// ```
-    /// let mut fen_game = Game::new();
-    /// fen_game.set_state_from_fen("rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR b kq e3 20 2");
-    /// let mut test_game = Game::new_empty();
-    /// 
-    /// let _board = vec![
-    /// vec![Piece::Rook(Colour::Black), Piece::Knight(Colour::Black), Piece::Bishop(Colour::Black), Piece::Queen(Colour::Black), Piece::King(Colour::Black), Piece::Bishop(Colour::Black), Piece::Knight(Colour::Black), Piece::Rook(Colour::Black)],
-    /// vec![Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Empty, Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black), Piece::Pawn(Colour::Black)],
-    /// vec![Piece::Empty, Piece::Empty, Piece::Pawn(Colour::Black), Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty],
-    /// vec![Piece::Empty; 8],
-    /// vec![Piece::Empty, Piece::Empty, Piece::Empty, Piece::Empty, Piece::Pawn(Colour::White), Piece::Empty, Piece::Empty, Piece::Empty],
-    /// vec![Piece::Empty; 8],
-    /// vec![Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Empty, Piece::Pawn(Colour::White), Piece::Pawn(Colour::White), Piece::Pawn(Colour::White)],
-    /// vec![Piece::Rook(Colour::White), Piece::Knight(Colour::White), Piece::Bishop(Colour::White), Piece::Queen(Colour::White), Piece::King(Colour::White), Piece::Bishop(Colour::White), Piece::Knight(Colour::White), Piece::Rook(Colour::White)],
-    /// ];
-    /// test_game.board = _board;
-    /// test_game.turn = 2;
-    /// test_game.current_turn = Colour::Black;
-    /// test_game.en_passant_square = (5, 4);
-    /// test_game.castlings = (false, false, true, true);
-    /// test_game.halfmove_clock = 20;
-    /// 
-    /// assert_eq!(fen_game, test_game);
-    /// ```
     pub fn set_state_from_fen(&mut self, fen: &str) {
         let fen_split = fen.split(" ").map(|_s| _s.to_string()).collect::<Vec<String>>();
         assert_eq!(fen_split.len(), 6, "Given invalid string when attempting to set state from FEN notaion.");
@@ -260,6 +235,8 @@ impl Game {
                     },
                 }
             }
+            if empties > 0 {rank.push(char::from_digit(empties, 10).unwrap()); }
+            if x != 7 { rank.push('/'); }
             fen.push_str(&rank);
         }
 
@@ -277,17 +254,34 @@ impl Game {
         let x = self.en_passant_square.0;
         let y = self.en_passant_square.1;
 
+        fen.push(' ');
         match y {
-            0 => {fen.push('a')},
-            1 => {fen.push('b')},
-            2 => {fen.push('c')},
-            3 => {fen.push('d')},
-            4 => {fen.push('e')},
-            5 => {fen.push('f')},
-            6 => {fen.push('g')},
-            7 => {fen.push('h')},
+            0 => {fen.push('a'); 
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            1 => {fen.push('b');
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            2 => {fen.push('c');
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            3 => {fen.push('d');
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            4 => {fen.push('e');
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            5 => {fen.push('f');
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            6 => {fen.push('g');
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            7 => {fen.push('h');
+            fen.push(char::from_digit(8 - x as u32, 10).unwrap());
+            },
+            _ => {fen.push('-')}
         }
-        fen.push(char::from_digit(8 - x as u32, 10).unwrap());
         fen.push_str(&" ");
         fen.push_str(&self.halfmove_clock.to_string());
         fen.push_str(&" ");
@@ -304,7 +298,7 @@ impl Game {
 
         self.halfmove_clock = self.halfmove_clock + 1;
 
-        if self.board[from.0][from.1] == Piece::Empty || self.board[from.0][from.1].get_colour().unwrap() != self.current_turn { return None; }
+        if self.board[from.0][from.1] == Piece::Empty || self.board[from.0][from.1].get_colour().unwrap() != &self.current_turn { return None; }
         let valids = self.board[from.0][from.1].get_valid_moves(from, &self.board, self.en_passant_square, self.castlings);
 
         if valids.contains(&to) {
@@ -838,13 +832,6 @@ fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, moves: Vec<(usize, 
 /// # Arguments
 /// 
 /// `square`: A string literal with a square in chess notation.
-/// 
-/// ```
-/// let sq1 = (0, 0);
-/// let sq2 = convert_square("a8");
-/// 
-/// assert_eq!(sq1, sq2);
-/// ```
 fn convert_square(square: &str) -> (usize, usize) {
     let column = {
         match square.chars().nth(0).unwrap() {

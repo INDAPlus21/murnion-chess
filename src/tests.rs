@@ -34,7 +34,6 @@ mod game_tests {
             #[test]
             fn $name() {
                 use crate::Game;
-                use crate::convert_square;
 
                 let mut game = Game::new_empty();
                 game.set_state_from_fen($fen);
@@ -111,6 +110,17 @@ mod game_tests {
         test_game.halfmove_clock = 20;
 
         assert_eq!(fen_game, test_game);
+    }
+
+    #[test]
+    fn get_fen_works_correctly() {
+        use crate::Game;
+
+        let mut game = Game::new();
+        let fen = game.get_fen();
+        let expected_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+        assert_eq!(fen, expected_fen);
     }
 
     #[test]
