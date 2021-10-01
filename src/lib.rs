@@ -297,13 +297,14 @@ impl Game {
 
     /// Takes a string in the form "\<square\> \<square\>", moving from the first square to the second.
     /// Also updates relevant game-tracking variables, such as the halfmove-clock, castlings and the en-passant square.
-    pub fn take_turn(&mut self, mov: String) -> GameState {
+    pub fn take_turn(&mut self, mov: String) -> Option<GameState> {
         let movs = mov.split(" ").collect::<Vec<&str>>();
         let from = convert_square(movs[0]);
         let to = convert_square(movs[1]);
 
         self.halfmove_clock = self.halfmove_clock + 1;
 
+        if self.board[from.0][from.1] == Piece::Empty || self.board[from.0][from.1].get_colour().unwrap() != self.current_turn { return None; }
         let valids = self.board[from.0][from.1].get_valid_moves(from, &self.board, self.en_passant_square, self.castlings);
 
         if valids.contains(&to) {
@@ -404,7 +405,7 @@ impl Game {
         }
 
         self.game_state = self.get_game_state(true);
-        self.game_state
+        Some(self.game_state)
     }
 }
 
