@@ -9,5 +9,5 @@ da chess engine??
 - [X] make sure castling works too
 - [X] promotion, on top of that
 - [X] comprehensive take_turn function that just makes sure it all works
-- [ ] double check the whole interface is implemented
-- [ ] double check the documentation
+- [X] double check the whole interface is implemented
+- [X] double check the documentation
