@@ -404,7 +404,7 @@ impl Game {
 
 /// Enumerable that holds the state of a single piece on the board, with awareness of how it moves and captures.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-enum Piece {
+pub enum Piece {
     King(Colour),
     Queen(Colour),
     Rook(Colour),
@@ -793,7 +793,7 @@ impl Piece {
 
 /// Colour enumerable used to identify the colour that any given piece belongs to.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-enum Colour {
+pub enum Colour {
     White,
     Black
 }
