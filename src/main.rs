@@ -1,8 +1,8 @@
-mod game;
+mod lib;
 
 use text_io::read;
-use game::Game;
-use game::GameState;
+use lib::Game;
+use lib::GameState;
 
 fn main() {
     let mut game = Game::new();
