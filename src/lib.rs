@@ -11,14 +11,14 @@ pub enum GameState {
 /// A struct implementing the full state of the chess board.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Game {
-    board: Vec<Vec<Piece>>,
-    current_turn: Colour,
-    castlings: (bool, bool, bool, bool),
-    en_passant_square: (usize, usize),
-    halfmove_clock: usize,
-    turn: usize,
-    selected_promotion: Piece,
-    game_state: GameState,
+    pub board: Vec<Vec<Piece>>,
+    pub current_turn: Colour,
+    pub castlings: (bool, bool, bool, bool),
+    pub en_passant_square: (usize, usize),
+    pub halfmove_clock: usize,
+    pub turn: usize,
+    pub selected_promotion: Piece,
+    pub game_state: GameState,
 }
 
 impl Game {
