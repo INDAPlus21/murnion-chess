@@ -460,7 +460,7 @@ impl Piece {
     }
 
     /// The public function to return any valid moves for the single piece it is called from. 
-    fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize), castlings: (bool, bool, bool, bool)) -> Vec<(usize, usize)> {
+    pub fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize), castlings: (bool, bool, bool, bool)) -> Vec<(usize, usize)> {
         match self {
             Piece::Empty => Vec::new(),
             Piece::Queen(_colour) => {
