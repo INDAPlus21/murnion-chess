@@ -146,7 +146,6 @@ impl Game {
 
     /// Recursively parses the board to get the game-state. Returns the new game-state.
     fn get_game_state(&self, eot: bool) -> GameState {
-        println!("{:?}", self.current_turn);
         let mut state = self.get_game_state_no_recursion();
         let mut moves = Vec::new();
         if state == GameState::Check && eot {
