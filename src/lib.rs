@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+mod tests;
 
 /// An enumerable representing whether the game has ended or not.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -130,6 +131,7 @@ impl Game {
                                         .get_threatened_squares((x, y), &self.board)
                                         .into_iter()
                                         .collect::<HashSet<(usize, usize)>>());
+                    println!("{:?} {:?}", threatened_squares, self.current_turn);
                 }
             }
         }
@@ -145,13 +147,14 @@ impl Game {
 
     /// Recursively parses the board to get the game-state. Returns the new game-state.
     fn get_game_state(&self, eot: bool) -> GameState {
+        println!("{:?}", self.current_turn);
         let mut state = self.get_game_state_no_recursion();
         let mut moves = Vec::new();
         if state == GameState::Check && eot {
             for x in 0..8 {
                 for y in 0..8 {
                     if self.board[x][y] != Piece::Empty && self.board[x][y].get_colour().unwrap() == &self.current_turn {
-                        moves.append(&mut self.board[x][y].get_valid_moves((x, y), &self.board, self.en_passant_square, self.castlings));
+                        moves.append(&mut self.board[x][y].get_valid_moves((x, y), &self.board, self.en_passant_square, self.castlings, self.current_turn));
                     }
                 }
             }
@@ -298,7 +301,7 @@ impl Game {
         self.halfmove_clock = self.halfmove_clock + 1;
 
         if self.board[from.0][from.1] == Piece::Empty || self.board[from.0][from.1].get_colour().unwrap() != &self.current_turn { return None; }
-        let valids = self.board[from.0][from.1].get_valid_moves(from, &self.board, self.en_passant_square, self.castlings);
+        let valids = self.board[from.0][from.1].get_valid_moves(from, &self.board, self.en_passant_square, self.castlings, self.current_turn);
 
         if valids.contains(&to) {
             let cur_piece = self.board[from.0][from.1];
@@ -345,9 +348,9 @@ impl Game {
             }
         }
 
-        if self.board[from.0][from.1] == Piece::Pawn(Colour::Black) && to.0 == from.0 + 2 {
+        if from.0 <= 6 && self.board[from.0][from.1] == Piece::Pawn(Colour::Black) && to.0 == from.0 + 2 {
             self.en_passant_square = (from.0 + 1, from.1);
-        } else if self.board[from.0][from.1] == Piece::Pawn(Colour::White) && to.0 == from.0 - 2 {
+        } else if from.0 >= 2 && self.board[from.0][from.1] == Piece::Pawn(Colour::White) && to.0 == from.0 - 2 {
             self.en_passant_square = (from.0 - 1, from.1);
         } else {
             self.en_passant_square = (8, 8);
@@ -432,11 +435,20 @@ impl Piece {
             },
             Piece::Pawn(_colour) => {
                 let mut moves = Vec::new();
-                if pos.1 != 0 {
-                    moves.push((pos.0 + 1, pos.1 - 1));
-                }
-                if pos.1 != 7 {
-                    moves.push((pos.0 + 1, pos.1 + 1));
+                if (_colour == &Colour::Black) {
+                    if pos.1 != 0 {
+                        moves.push((pos.0 + 1, pos.1 - 1));
+                    }
+                    if pos.1 != 7 {
+                        moves.push((pos.0 + 1, pos.1 + 1));
+                    }
+                } else if pos.0 != 0 {
+                    if pos.1 != 0 {
+                        moves.push((pos.0 - 1, pos.1 - 1));
+                    }
+                    if pos.1 != 7 {
+                        moves.push((pos.0 - 1, pos.1 + 1));
+                    }
                 }
                 moves
             },
@@ -460,34 +472,34 @@ impl Piece {
     }
 
     /// The public function to return any valid moves for the single piece it is called from. 
-    pub fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize), castlings: (bool, bool, bool, bool)) -> Vec<(usize, usize)> {
-        match self {
+    pub fn get_valid_moves(&self, pos: (usize, usize), board: &Vec<Vec<Piece>>, en_passant_square: (usize, usize), castlings: (bool, bool, bool, bool), turn: Colour) -> Vec<(usize, usize)> {
+        match &self {
             Piece::Empty => Vec::new(),
             Piece::Queen(_colour) => {
                 let mut moves = Vec::new();
                 moves.append(&mut self.get_rook_moves(pos, board));
                 moves.append(&mut self.get_bishop_moves(pos, board));
-                clean_moves(pos, board, moves)
+                clean_moves(pos, board, moves, turn)
             },
             Piece::Rook(_colour) => {
                 let moves = self.get_rook_moves(pos, board);
-                clean_moves(pos, board, moves)
+                clean_moves(pos, board, moves, turn)
             },
             Piece::Bishop(_colour) => {
                 let moves = self.get_bishop_moves(pos, board);
-                clean_moves(pos, board, moves)
+                clean_moves(pos, board, moves, turn)
             },
             Piece::Knight(_colour) => {
                 let moves = self.get_knight_moves(pos, board);
-                clean_moves(pos, board, moves)
+                clean_moves(pos, board, moves, turn)
             },
             Piece::Pawn(_colour) => {
                 let moves = self.get_pawn_moves(pos, board, en_passant_square);
-                clean_moves(pos, board, moves)
+                clean_moves(pos, board, moves, turn)
             },
             Piece::King(_colour) => {
                 let moves = self.get_king_moves(pos, board, castlings);
-                clean_moves(pos, board, moves)
+                clean_moves(pos, board, moves, turn)
             },
         }
     }
@@ -805,11 +817,12 @@ pub enum Colour {
 /// `pos`: The position of the piece which is being moved.
 /// `board`: The board of the game.
 /// `moves`: The moves to be cleaned.
-fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, moves: Vec<(usize, usize)>) -> Vec<(usize, usize)> {
+fn clean_moves(pos: (usize, usize), board: &Vec<Vec<Piece>>, moves: Vec<(usize, usize)>, turn: Colour) -> Vec<(usize, usize)> {
     let mut bad_moves = Vec::new();
     let mut clean_moves = Vec::new();
     for mov_idx in 0..moves.len() {
         let mut theoretical_game = Game::new();
+        theoretical_game.current_turn = turn;
         theoretical_game.board = board.clone();
         theoretical_game.board[moves[mov_idx].0][moves[mov_idx].1] = board[pos.0][pos.1].clone();
         theoretical_game.board[pos.0][pos.1] = Piece::Empty;

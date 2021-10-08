@@ -16,9 +16,11 @@ mod game_tests {
                 let square = convert_square(stringify!($piece));
                 game.set_state_from_fen($fen);
                 let mut expected_moves: Vec<(usize, usize)> = moves!($($token)*);
-                let mut actual_moves = game.board[square.0][square.1].get_valid_moves(square, &game.board, game.en_passant_square, game.castlings);
+                println!("{:?}", game.current_turn);
+                let mut actual_moves = game.board[square.0][square.1].get_valid_moves(square, &game.board, game.en_passant_square, game.castlings, game.current_turn);
                 actual_moves.sort();
                 expected_moves.sort();
+                println!("{:?}", game.game_state());
                 assert_eq!(expected_moves, actual_moves);
             }
         };
@@ -110,6 +112,7 @@ mod game_tests {
         test_game.halfmove_clock = 20;
 
         assert_eq!(fen_game, test_game);
+        assert_eq!(fen_game.current_turn, test_game.current_turn);
     }
 
     #[test]
@@ -266,5 +269,12 @@ mod game_tests {
         fen: "3qk2r/8/8/8/8/8/8/6R1 w KQkq - 0 0",
         piece: e8,
         legal_moves: [f8, d7, e7, f7],
+    }
+
+    test!{
+        name: black_king_checks_correctly,
+        fen: "k6r/1P6/8/8/8/8/8/8 b KQkq - 0 0",
+        piece: h8,
+        legal_moves: [],
     }
 }
