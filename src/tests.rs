@@ -16,7 +16,6 @@ mod game_tests {
                 let square = convert_square(stringify!($piece));
                 game.set_state_from_fen($fen);
                 let mut expected_moves: Vec<(usize, usize)> = moves!($($token)*);
-                println!("{:?}", game.current_turn);
                 let mut actual_moves = game.board[square.0][square.1].get_valid_moves(square, &game.board, game.en_passant_square, game.castlings, game.current_turn);
                 actual_moves.sort();
                 expected_moves.sort();

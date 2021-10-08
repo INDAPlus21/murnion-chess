@@ -131,7 +131,6 @@ impl Game {
                                         .get_threatened_squares((x, y), &self.board)
                                         .into_iter()
                                         .collect::<HashSet<(usize, usize)>>());
-                    println!("{:?} {:?}", threatened_squares, self.current_turn);
                 }
             }
         }
